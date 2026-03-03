@@ -1,21 +1,33 @@
-import { db } from "./firebase.js";
+import { auth, PROJECT_DOC, signIn, signOut, onAuthStateChanged, onSnapshot, setDoc }
+  from "./firebase.js";
 
-const appEl = document.getElementById("app");
+const appEl    = document.getElementById("app");
+const authEl   = document.getElementById("auth-bar");
 
 // ---------- PREDEFINED CATEGORIES ----------
 const PRESET_CATEGORIES = [
-  { name: "Electrical",         icon: "⚡", description: "Battery, inverter, solar, wiring, lighting" },
-  { name: "Plumbing",           icon: "🚿", description: "Water tank, pump, pipes, sink" },
-  { name: "Flooring",           icon: "🪵", description: "Subfloor, vinyl, wood, carpet" },
-  { name: "Wall Cladding",      icon: "🪣", description: "Ply lining, tongue & groove, panelling, insulation" },
-  { name: "Bed & Sleeping",     icon: "🛏️", description: "Bed frame, mattress, storage underneath" },
-  { name: "Cabinetry",          icon: "🗄️", description: "Kitchen units, overhead storage, shelving" },
-  { name: "Ventilation",        icon: "💨", description: "Roof fan, vents, condensation control" },
-  { name: "Windows & Skylights",icon: "🪟", description: "Side windows, roof lights, blinds" },
-  { name: "Garage & Storage",   icon: "📦", description: "Rear garage, under-bed, racking" },
-  { name: "Seating & Lounge",   icon: "🛋️", description: "Seat cushions, sofa conversion, table" },
-  { name: "Exterior",           icon: "🚐", description: "Roof rack, awning, bodywork, paint" },
-  { name: "Custom",             icon: "✏️", description: "Add your own category" },
+  { name: "Electrical",          icon: "⚡", description: "Battery, inverter, solar, wiring" },
+  { name: "Solar",               icon: "☀️", description: "Panels, charge controllers, mounts" },
+  { name: "Plumbing",            icon: "🚿", description: "Water tank, pump, pipes, sink" },
+  { name: "Insulation",          icon: "🧱", description: "Foam board, spray foam, vapour barrier" },
+  { name: "Flooring",            icon: "🪵", description: "Subfloor, vinyl, wood, carpet" },
+  { name: "Wall Cladding",       icon: "🪣", description: "Ply lining, tongue & groove, panelling" },
+  { name: "Ceiling",             icon: "🏠", description: "Lining, lighting recesses, headlining" },
+  { name: "Bed & Sleeping",      icon: "🛏️", description: "Bed frame, mattress, storage underneath" },
+  { name: "Cabinetry",           icon: "🗄️", description: "Kitchen units, overhead storage, shelving" },
+  { name: "Kitchen",             icon: "🍳", description: "Hob, sink, worktop, utensil storage" },
+  { name: "Heating",             icon: "🔥", description: "Diesel heater, gas, underfloor heating" },
+  { name: "Ventilation",         icon: "💨", description: "Roof fan, vents, condensation control" },
+  { name: "Lighting",            icon: "💡", description: "LED strips, spotlights, switches" },
+  { name: "Windows & Skylights", icon: "🪟", description: "Side windows, roof lights, blinds" },
+  { name: "Doors",               icon: "🚪", description: "Barn doors, sliding, sliding mechanism" },
+  { name: "Garage & Storage",    icon: "📦", description: "Rear garage, under-bed, racking" },
+  { name: "Seating & Lounge",    icon: "🛋️", description: "Seat cushions, sofa conversion, table" },
+  { name: "Exterior",            icon: "🚐", description: "Roof rack, awning, bodywork, paint" },
+  { name: "Safety & Security",   icon: "🔒", description: "Locks, alarm, CO detector, fire ext." },
+  { name: "Connectivity",        icon: "📡", description: "WiFi booster, mobile data, TV aerial" },
+  { name: "Tools & Equipment",   icon: "🔧", description: "Build tools, fixings, adhesives" },
+  { name: "Custom",              icon: "✏️", description: "Add your own category" },
 ];
 
 // ---------- STATE ----------
