@@ -19,112 +19,125 @@ const PRESET_CATEGORIES = [
 ];
 
 // ---------- STATE ----------
-let state = {
-  categories: []
-};
+let state = { categories: [] };
+let currentUser = null;
+let unsubSnapshot = null;   // Firestore listener handle
 
 // ---------- UTIL ----------
 const uid = () => crypto.randomUUID();
 
+// ---------- FIRESTORE SYNC ----------
+let saveTimer = null;
+
+function scheduleWrite() {
+  // Debounce — wait 800ms after last change before writing
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    if (!currentUser) return;
+    setDoc(PROJECT_DOC, { categories: state.categories })
+      .then(() => setSyncStatus("saved"))
+      .catch(err => {
+        console.error("Firestore write failed:", err);
+        setSyncStatus("error");
+      });
+    setSyncStatus("saving");
+  }, 800);
+}
+
+function setSyncStatus(status) {
+  const el = document.getElementById("sync-status");
+  if (!el) return;
+  const map = {
+    saving: { text: "Saving…",  colour: "var(--text-3)" },
+    saved:  { text: "Saved ✓",  colour: "var(--green)"  },
+    error:  { text: "Save failed ✗", colour: "var(--red)" },
+    live:   { text: "Live",     colour: "var(--amber)"  },
+  };
+  const s = map[status] || map.live;
+  el.textContent    = s.text;
+  el.style.color    = s.colour;
+}
+
+function startListening() {
+  // Real-time listener — updates state whenever Firestore changes
+  if (unsubSnapshot) unsubSnapshot();
+  unsubSnapshot = onSnapshot(PROJECT_DOC, snap => {
+    if (snap.exists()) {
+      state = snap.data();
+    } else {
+      state = { categories: [] };
+    }
+    render();
+    setSyncStatus("live");
+  }, err => {
+    console.error("Snapshot error:", err);
+    setSyncStatus("error");
+  });
+}
+
+function stopListening() {
+  if (unsubSnapshot) { unsubSnapshot(); unsubSnapshot = null; }
+}
+
+// ---------- AUTH ----------
+function renderAuthBar(user) {
+  if (!authEl) return;
+  if (user) {
+    authEl.innerHTML = `
+      <div class="auth-user">
+        <img class="auth-avatar" src="${user.photoURL || ""}" alt="${user.displayName}" />
+        <span class="auth-name">${user.displayName}</span>
+        <span id="sync-status" class="sync-status">Live</span>
+        <button class="btn-secondary btn-sm" id="sign-out-btn">Sign out</button>
+      </div>
+    `;
+    document.getElementById("sign-out-btn").addEventListener("click", () => signOut());
+  } else {
+    authEl.innerHTML = `
+      <button class="btn-google" id="sign-in-btn">
+        <svg width="18" height="18" viewBox="0 0 48 48" style="vertical-align:middle;margin-right:8px">
+          <path fill="#EA4335" d="M24 9.5c3.1 0 5.8 1.1 8 2.8l6-6C34.5 3.1 29.6 1 24 1 14.8 1 7 6.7 3.7 14.8l7 5.4C12.4 13.5 17.7 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7c4.3-4 6.8-9.9 6.8-16.9z"/>
+          <path fill="#FBBC05" d="M10.7 28.6A14.7 14.7 0 0 1 9.5 24c0-1.6.3-3.1.7-4.6l-7-5.4A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l8.1-6.2z"/>
+          <path fill="#34A853" d="M24 47c5.6 0 10.3-1.8 13.7-5L30.3 36.3c-1.9 1.3-4.3 2.1-6.8 2.1-6.3 0-11.6-4.2-13.5-10l-8.1 6.2C5.9 41.6 14.3 47 24 47z"/>
+        </svg>
+        Sign in with Google
+      </button>
+    `;
+    document.getElementById("sign-in-btn").addEventListener("click", () => {
+      signIn().catch(err => console.error("Sign-in failed:", err));
+    });
+  }
+}
+
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  renderAuthBar(user);
+
+  if (user) {
+    startListening();
+    appEl.style.display = "";
+  } else {
+    stopListening();
+    state = { categories: [] };
+    appEl.style.display = "none";
+    appEl.innerHTML = "";
+    renderSignedOut();
+  }
+});
+
+function renderSignedOut() {
+  if (!authEl) return;
+  // Auth bar already shows the sign-in button; nothing else needed in appEl
+}
+
+// ---------- ACTIONS ----------
 function setState(newState) {
   state = newState;
   render();
+  scheduleWrite();
 }
 
-// ---------- MODAL ----------
-let modalResolve = null;
-
-function showModal(fields, title) {
-  return new Promise(resolve => {
-    modalResolve = resolve;
-
-    const fieldsHTML = fields.map(f => {
-      if (f.type === "textarea") {
-        return `
-          <label class="modal-label">
-            ${f.label}
-            <textarea name="${f.name}" class="modal-input" rows="2">${f.default || ""}</textarea>
-          </label>`;
-      }
-      return `
-        <label class="modal-label">
-          ${f.label}
-          <input 
-            type="${f.type || "text"}" 
-            name="${f.name}" 
-            class="modal-input" 
-            value="${f.default || ""}"
-            placeholder="${f.placeholder || ""}"
-            ${f.required ? "required" : ""}
-          />
-        </label>`;
-    }).join("");
-
-    document.getElementById("modal-overlay").innerHTML = `
-      <div class="modal">
-        <h3 class="modal-title">${title}</h3>
-        <form id="modal-form">
-          ${fieldsHTML}
-          <div class="modal-actions">
-            <button type="button" class="btn-secondary" data-modal="cancel">Cancel</button>
-            <button type="submit" class="btn-primary">Confirm</button>
-          </div>
-        </form>
-      </div>
-    `;
-    document.getElementById("modal-overlay").style.display = "flex";
-
-    // Focus first input
-    setTimeout(() => {
-      const first = document.querySelector("#modal-form input, #modal-form textarea");
-      if (first) first.focus();
-    }, 50);
-  });
-}
-
-function showConfirm(message) {
-  return new Promise(resolve => {
-    modalResolve = resolve;
-    document.getElementById("modal-overlay").innerHTML = `
-      <div class="modal">
-        <p class="modal-confirm-msg">${message}</p>
-        <div class="modal-actions">
-          <button type="button" class="btn-secondary" data-modal="cancel">Cancel</button>
-          <button type="button" class="btn-danger" data-modal="confirm">Remove</button>
-        </div>
-      </div>
-    `;
-    document.getElementById("modal-overlay").style.display = "flex";
-  });
-}
-
-function closeModal(result) {
-  document.getElementById("modal-overlay").style.display = "none";
-  document.getElementById("modal-overlay").innerHTML = "";
-  if (modalResolve) {
-    modalResolve(result);
-    modalResolve = null;
-  }
-}
-
-// Modal event delegation
-document.getElementById("modal-overlay").addEventListener("click", e => {
-  if (e.target === document.getElementById("modal-overlay")) {
-    closeModal(null);
-  }
-  if (e.target.dataset.modal === "cancel") closeModal(null);
-  if (e.target.dataset.modal === "confirm") closeModal(true);
-});
-
-document.getElementById("modal-overlay").addEventListener("submit", e => {
-  if (e.target.id === "modal-form") {
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.target));
-    closeModal(data);
-  }
-});
-
-// ---------- ACTIONS ----------
 async function addCategory() {
   const usedNames = new Set(state.categories.map(c => c.name));
   const result = await showCategoryPicker(usedNames);
@@ -215,11 +228,7 @@ function showCategoryPicker(usedNames) {
 async function removeCategory(categoryId) {
   const confirmed = await showConfirm("Remove this category and all its items?");
   if (!confirmed) return;
-
-  setState({
-    ...state,
-    categories: state.categories.filter(c => c.id !== categoryId)
-  });
+  setState({ ...state, categories: state.categories.filter(c => c.id !== categoryId) });
 }
 
 async function addItem(categoryId) {
@@ -228,19 +237,11 @@ async function addItem(categoryId) {
   ], "New Item");
   if (!result) return;
 
-  const newItem = {
-    id: uid(),
-    name: result.name.trim() || "New Item",
-    selectedOptionId: null,
-    options: []
-  };
-
+  const newItem = { id: uid(), name: result.name.trim() || "New Item", selectedOptionId: null, options: [] };
   setState({
     ...state,
     categories: state.categories.map(cat =>
-      cat.id === categoryId
-        ? { ...cat, items: [...cat.items, newItem] }
-        : cat
+      cat.id === categoryId ? { ...cat, items: [...cat.items, newItem] } : cat
     )
   });
 }
@@ -248,45 +249,38 @@ async function addItem(categoryId) {
 async function removeItem(categoryId, itemId) {
   const confirmed = await showConfirm("Remove this item and all its options?");
   if (!confirmed) return;
-
   setState({
     ...state,
     categories: state.categories.map(cat =>
-      cat.id === categoryId
-        ? { ...cat, items: cat.items.filter(i => i.id !== itemId) }
-        : cat
+      cat.id === categoryId ? { ...cat, items: cat.items.filter(i => i.id !== itemId) } : cat
     )
   });
 }
 
 async function addOption(categoryId, itemId) {
   const result = await showModal([
-    { name: "name",  label: "Option Name", required: true, placeholder: "e.g. Renogy 100W Panel" },
-    { name: "cost",  label: "Cost (£)", type: "number", placeholder: "0.00" },
-    { name: "url",   label: "URL", placeholder: "https://…" }
+    { name: "name", label: "Option Name", required: true, placeholder: "e.g. Renogy 100W Panel" },
+    { name: "cost", label: "Cost (£)", type: "number", placeholder: "0.00" },
+    { name: "url",  label: "URL", placeholder: "https://…" }
   ], "New Option");
   if (!result) return;
 
   const newOption = {
-    id: uid(),
-    name: result.name.trim() || "New Option",
-    cost: parseFloat(result.cost) || 0,
-    url: result.url.trim(),
+    id:    uid(),
+    name:  result.name.trim() || "New Option",
+    cost:  parseFloat(result.cost) || 0,
+    url:   result.url.trim(),
     image: ""
   };
-
   setState({
     ...state,
     categories: state.categories.map(cat =>
       cat.id === categoryId
-        ? {
-            ...cat,
-            items: cat.items.map(item =>
-              item.id === itemId
-                ? { ...item, options: [...item.options, newOption] }
-                : item
-            )
-          }
+        ? { ...cat, items: cat.items.map(item =>
+            item.id === itemId
+              ? { ...item, options: [...item.options, newOption] }
+              : item
+          )}
         : cat
     )
   });
@@ -295,19 +289,15 @@ async function addOption(categoryId, itemId) {
 async function removeOption(categoryId, itemId, optionId) {
   const confirmed = await showConfirm("Remove this option?");
   if (!confirmed) return;
-
   setState({
     ...state,
     categories: state.categories.map(cat =>
       cat.id === categoryId
-        ? {
-            ...cat,
-            items: cat.items.map(item =>
-              item.id === itemId
-                ? { ...item, options: item.options.filter(o => o.id !== optionId) }
-                : item
-            )
-          }
+        ? { ...cat, items: cat.items.map(item =>
+            item.id === itemId
+              ? { ...item, options: item.options.filter(o => o.id !== optionId) }
+              : item
+          )}
         : cat
     )
   });
@@ -318,18 +308,87 @@ function selectOption(categoryId, itemId, optionId) {
     ...state,
     categories: state.categories.map(cat =>
       cat.id === categoryId
-        ? {
-            ...cat,
-            items: cat.items.map(item =>
-              item.id === itemId
-                ? { ...item, selectedOptionId: optionId }
-                : item
-            )
-          }
+        ? { ...cat, items: cat.items.map(item =>
+            item.id === itemId ? { ...item, selectedOptionId: optionId } : item
+          )}
         : cat
     )
   });
 }
+
+// ---------- MODAL ----------
+let modalResolve = null;
+
+function showModal(fields, title) {
+  return new Promise(resolve => {
+    modalResolve = resolve;
+    const fieldsHTML = fields.map(f => `
+      <label class="modal-label">
+        ${f.label}
+        <input
+          type="${f.type || "text"}"
+          name="${f.name}"
+          class="modal-input"
+          value="${f.default || ""}"
+          placeholder="${f.placeholder || ""}"
+          ${f.required ? "required" : ""}
+        />
+      </label>`).join("");
+
+    document.getElementById("modal-overlay").innerHTML = `
+      <div class="modal">
+        <h3 class="modal-title">${title}</h3>
+        <form id="modal-form">
+          ${fieldsHTML}
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" data-modal="cancel">Cancel</button>
+            <button type="submit" class="btn-primary">Confirm</button>
+          </div>
+        </form>
+      </div>
+    `;
+    document.getElementById("modal-overlay").style.display = "flex";
+    setTimeout(() => {
+      const first = document.querySelector("#modal-form input");
+      if (first) first.focus();
+    }, 50);
+  });
+}
+
+function showConfirm(message) {
+  return new Promise(resolve => {
+    modalResolve = resolve;
+    document.getElementById("modal-overlay").innerHTML = `
+      <div class="modal">
+        <p class="modal-confirm-msg">${message}</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" data-modal="cancel">Cancel</button>
+          <button type="button" class="btn-danger"    data-modal="confirm">Remove</button>
+        </div>
+      </div>
+    `;
+    document.getElementById("modal-overlay").style.display = "flex";
+  });
+}
+
+function closeModal(result) {
+  document.getElementById("modal-overlay").style.display = "none";
+  document.getElementById("modal-overlay").innerHTML = "";
+  if (modalResolve) { modalResolve(result); modalResolve = null; }
+}
+
+document.getElementById("modal-overlay").addEventListener("click", e => {
+  if (e.target === document.getElementById("modal-overlay")) closeModal(null);
+  if (e.target.dataset.modal === "cancel")  closeModal(null);
+  if (e.target.dataset.modal === "confirm") closeModal(true);
+});
+
+document.getElementById("modal-overlay").addEventListener("submit", e => {
+  if (e.target.id === "modal-form") {
+    e.preventDefault();
+    closeModal(Object.fromEntries(new FormData(e.target)));
+  }
+});
 
 // ---------- RENDER ----------
 function render() {
@@ -348,8 +407,8 @@ function renderCategory(category) {
       <div class="category-header">
         <h2>${category.icon || ""} ${category.name}</h2>
         <div class="header-actions">
-          <button class="btn-secondary" data-action="add-item" data-category="${category.id}">+ Add Item</button>
-          <button class="btn-danger-sm" data-action="remove-category" data-category="${category.id}">✕ Remove</button>
+          <button class="btn-secondary btn-sm" data-action="add-item" data-category="${category.id}">+ Add Item</button>
+          <button class="btn-danger-sm"        data-action="remove-category" data-category="${category.id}">✕ Remove</button>
         </div>
       </div>
       <div class="category-body">
@@ -365,8 +424,8 @@ function renderItem(category, item) {
       <div class="item-header">
         <strong>${item.name}</strong>
         <div class="header-actions">
-          <button class="btn-secondary btn-sm" data-action="add-option" data-category="${category.id}" data-item="${item.id}">+ Add Option</button>
-          <button class="btn-danger-sm" data-action="remove-item" data-category="${category.id}" data-item="${item.id}">✕</button>
+          <button class="btn-secondary btn-sm" data-action="add-option"   data-category="${category.id}" data-item="${item.id}">+ Add Option</button>
+          <button class="btn-danger-sm"        data-action="remove-item"  data-category="${category.id}" data-item="${item.id}">✕</button>
         </div>
       </div>
       ${item.options.map(option => renderOption(category, item, option)).join("")}
@@ -375,17 +434,15 @@ function renderItem(category, item) {
 }
 
 function renderOption(category, item, option) {
-  const checked = item.selectedOptionId === option.id ? "checked" : "";
   const urlHTML = option.url
     ? `<a href="${option.url}" target="_blank" rel="noopener" class="option-link">↗ Link</a>`
     : "";
-
   return `
     <div class="option ${item.selectedOptionId === option.id ? "option-selected" : ""}">
-      <input 
-        type="radio" 
-        name="radio-${item.id}" 
-        ${checked}
+      <input
+        type="radio"
+        name="radio-${item.id}"
+        ${item.selectedOptionId === option.id ? "checked" : ""}
         data-action="select-option"
         data-category="${category.id}"
         data-item="${item.id}"
@@ -403,9 +460,7 @@ function renderOption(category, item, option) {
 appEl.addEventListener("click", e => {
   const action = e.target.dataset.action;
   if (!action) return;
-
   const { category, item, option } = e.target.dataset;
-
   if (action === "add-category")    addCategory();
   if (action === "remove-category") removeCategory(category);
   if (action === "add-item")        addItem(category);
@@ -414,6 +469,3 @@ appEl.addEventListener("click", e => {
   if (action === "remove-option")   removeOption(category, item, option);
   if (action === "select-option")   selectOption(category, item, option);
 });
-
-// ---------- INIT ----------
-render();

@@ -1,28 +1,29 @@
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot }
+                           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+                           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-analytics.js";
-
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-apiKey: "AIzaSyA9zF7mTesrlAuNRfm8HvKvnAW72v2j6UE",
-authDomain: "van-project-e7472.firebaseapp.com",
-projectId: "van-project-e7472",
-storageBucket: "van-project-e7472.firebasestorage.app",
-messagingSenderId: "1062050986674",
-appId: "1:1062050986674:web:a9e1c1c04a9f48e5c8e7ab",
-measurementId: "G-Q5YNEZXE05"
+  apiKey:            "AIzaSyA9zF7mTesrlAuNRfm8HvKvnAW72v2j6UE",
+  authDomain:        "van-project-e7472.firebaseapp.com",
+  projectId:         "van-project-e7472",
+  storageBucket:     "van-project-e7472.firebasestorage.app",
+  messagingSenderId: "1062050986674",
+  appId:             "1:1062050986674:web:a9e1c1c04a9f48e5c8e7ab",
+  measurementId:     "G-Q5YNEZXE05"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const app      = initializeApp(firebaseConfig);
+const db       = getFirestore(app);
+const auth     = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-// Initialize Firestore
-const db = getFirestore(app);
+// ── Shared project document ──────────────────────────────────
+const PROJECT_DOC = doc(db, "project", "main");
 
-// Export db for use in other files
-export { db };
+// Sign in / out helpers
+const signIn  = () => signInWithPopup(auth, provider);
+const signOut_ = () => signOut(auth);
+
+export { db, auth, PROJECT_DOC, signIn, signOut_ as signOut, onAuthStateChanged, onSnapshot, setDoc };

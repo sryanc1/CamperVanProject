@@ -464,3 +464,69 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   flex-shrink: 0;
   letter-spacing: 0.05em;
 }
+
+/* ============================================================
+   AUTH BAR
+   ============================================================ */
+.auth-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px 20px;
+  background: rgba(17,16,9,0.85);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.auth-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+.auth-name {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.sync-status {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  min-width: 70px;
+  text-align: right;
+  transition: color 0.3s;
+}
+
+.btn-google {
+  display: flex;
+  align-items: center;
+  background: var(--surface-2);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-google:hover {
+  background: var(--surface-3);
+  border-color: var(--amber-dim);
+}
+
+/* Push hero + content below fixed auth bar */
+.hero { margin-top: 49px; }
