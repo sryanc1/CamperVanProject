@@ -33,14 +33,12 @@ sidebarOverlay.addEventListener("click", closeSidebar);
 // ── Floor plan drawer toggle ─────────────────────────────────
 const floorplanBtn    = document.getElementById("floorplan-btn");
 const floorplanDrawer = document.getElementById("floorplan-drawer");
-const shell           = document.querySelector(".shell");
 
 floorplanBtn.addEventListener("click", () => {
   const isOpen = floorplanDrawer.classList.toggle("open");
   floorplanBtn.classList.toggle("active", isOpen);
   floorplanBtn.setAttribute("aria-expanded", isOpen);
   floorplanDrawer.setAttribute("aria-hidden", !isOpen);
-  shell.classList.toggle("drawer-open", isOpen);
 });
 
 // ── Event delegation ─────────────────────────────────────────
