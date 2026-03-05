@@ -10,6 +10,7 @@ import {
   addItem,     removeItem,
   addOption,   removeOption,
   selectOption,
+  editOption,
 } from "./js/actions.js";
 
 // ── Bootstrap ────────────────────────────────────────────────
@@ -60,6 +61,7 @@ appEl.addEventListener("click", e => {
   if (action === "add-item")        addItem(category);
   if (action === "remove-item")     removeItem(category, item);
   if (action === "add-option")      addOption(category, item);
+  if (action === "edit-option")    editOption(category, item, option);
   if (action === "remove-option")   removeOption(category, item, option);
   if (action === "select-option")   selectOption(category, item, option);
   if (action === "toggle-item") {

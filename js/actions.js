@@ -99,6 +99,45 @@ export async function addOption(categoryId, itemId) {
   });
 }
 
+export async function editOption(categoryId, itemId, optionId) {
+  const state  = getState();
+  const option = state.categories
+    .flatMap(c => c.items.flatMap(i => i.options))
+    .find(o => o.id === optionId);
+  if (!option) return;
+
+  const result = await showModal([
+    { name: "name",     label: "Option Name", required: true, default: option.name },
+    { name: "cost",     label: "Cost ($)",    type: "number", default: option.cost },
+    { name: "quantity", label: "Quantity",    type: "number", default: option.quantity || 1 },
+    { name: "url",      label: "Product URL", default: option.url   || "" },
+    { name: "notes",    label: "Notes",       default: option.notes || "" },
+  ], "Edit Option");
+  if (!result) return;
+
+  setState({
+    ...state,
+    categories: state.categories.map(cat =>
+      cat.id === categoryId
+        ? { ...cat, items: cat.items.map(item =>
+            item.id === itemId
+              ? { ...item, options: item.options.map(o =>
+                  o.id === optionId ? {
+                    ...o,
+                    name:     result.name.trim()        || o.name,
+                    cost:     parseFloat(result.cost)   || 0,
+                    quantity: parseInt(result.quantity) || 1,
+                    url:      result.url.trim(),
+                    notes:    result.notes.trim(),
+                  } : o
+                )}
+              : item
+          )}
+        : cat
+    ),
+  });
+}
+
 export async function removeOption(categoryId, itemId, optionId) {
   if (!await showConfirm("Remove this option?")) return;
   const state = getState();

@@ -143,6 +143,8 @@ function renderOption(category, item, option) {
         <span class="option-name">${option.name}</span>
         ${qty}
         <span class="option-cost">$${option.cost.toFixed(2)}</span>
+        <button class="btn-secondary btn-sm" data-action="edit-option"
+          data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✎ Edit</button>
         <button class="btn-danger-sm" data-action="remove-option"
           data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✕</button>
       </div>
