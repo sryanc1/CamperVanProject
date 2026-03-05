@@ -8,6 +8,16 @@ const appEl = document.getElementById("app");
 const previewCache = {};  // url → { title, domain, favicon } | "loading" | "error"
 let   cardObserver = null;
 
+// ── Helpers ──────────────────────────────────────────────────
+function categoryTotal(category) {
+  return category.items.reduce((sum, item) => {
+    if (!item.selectedOptionId) return sum;
+    const opt = item.options.find(o => o.id === item.selectedOptionId);
+    if (!opt) return sum;
+    return sum + opt.cost * (opt.quantity || 1);
+  }, 0);
+}
+
 // ── Entry point ──────────────────────────────────────────────
 export function render() {
   renderSidebar();
@@ -25,11 +35,16 @@ export function renderSidebar() {
     return;
   }
 
-  nav.innerHTML = categories.map(cat => `
+  nav.innerHTML = categories.map(cat => {
+    const total = categoryTotal(cat);
+    const totalBadge = total > 0 ? `<span class="nav-item-total">$${total.toFixed(2)}</span>` : "";
+    return `
     <li class="nav-item" data-nav-category="${cat.id}" title="${cat.name}">
       <span class="nav-item-icon">${cat.icon || "📁"}</span>
       <span class="nav-item-name">${cat.name}</span>
-    </li>`).join("");
+      ${totalBadge}
+    </li>`;
+  }).join("");
 
   nav.querySelectorAll(".nav-item").forEach(el => {
     el.addEventListener("click", () => {
@@ -71,7 +86,10 @@ function renderCard(category) {
         <img class="card-hero-img" src="${imgSrc}" alt="${category.name}"
           onerror="this.style.display='none'" onload="this.classList.add('loaded')" />
         <div class="card-hero-overlay"></div>
-        <div class="card-hero-title">${category.icon || ""} ${category.name}</div>
+        <div class="card-hero-title">
+          <span>${category.icon || ""} ${category.name}</span>
+          ${(() => { const t = categoryTotal(category); return t > 0 ? `<span class="card-hero-total">$${t.toFixed(2)}</span>` : ""; })()}
+        </div>
         <div class="card-hero-actions">
           <button class="btn-danger-sm" data-action="remove-category" data-category="${category.id}">✕ Remove</button>
         </div>
