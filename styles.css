@@ -1010,3 +1010,67 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   font-variant-numeric: tabular-nums;
   text-shadow: 0 1px 8px rgba(0,0,0,0.5);
 }
+
+/* ============================================================
+   GRAND TOTAL
+   ============================================================ */
+
+/* Header total — sits between brand and floor plan button */
+.header-total {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-left: auto;
+  background: rgba(74, 222, 128, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: var(--radius);
+  padding: 5px 12px;
+}
+
+.header-total-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.header-total-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sidebar footer total — above add button */
+.sidebar-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 10px;
+  margin-bottom: 10px;
+  background: rgba(74, 222, 128, 0.06);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  border-radius: var(--radius);
+}
+
+.sidebar-total-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.sidebar-total-amount {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ensure floor plan button doesn't also grab the auto margin
+   now that header-total has margin-left: auto */
+.btn-floorplan {
+  margin-left: 0;
+}

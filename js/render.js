@@ -18,10 +18,32 @@ function categoryTotal(category) {
   }, 0);
 }
 
+function grandTotal() {
+  return getState().categories.reduce((sum, cat) => sum + categoryTotal(cat), 0);
+}
+
+function renderTotals() {
+  const total = grandTotal();
+  const fmt   = `$${total.toFixed(2)}`;
+
+  const headerEl  = document.getElementById("header-total");
+  const sidebarEl = document.getElementById("sidebar-total");
+
+  if (headerEl) {
+    headerEl.style.display = total > 0 ? "flex" : "none";
+    headerEl.querySelector(".header-total-amount").textContent = fmt;
+  }
+  if (sidebarEl) {
+    sidebarEl.style.display = total > 0 ? "flex" : "none";
+    sidebarEl.querySelector(".sidebar-total-amount").textContent = fmt;
+  }
+}
+
 // ── Entry point ──────────────────────────────────────────────
 export function render() {
   renderSidebar();
   renderCarousel();
+  renderTotals();
 }
 
 // ── Sidebar ──────────────────────────────────────────────────
