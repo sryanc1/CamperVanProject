@@ -530,3 +530,93 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 
 /* Push hero + content below fixed auth bar */
 .hero { margin-top: 49px; }
+
+/* ============================================================
+   SIGN-IN GATE
+   ============================================================ */
+#sign-in-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(11, 10, 7, 0.82);
+  backdrop-filter: blur(6px);
+  animation: fade-in 0.4s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sign-in-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 44px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+  animation: card-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes card-up {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.sign-in-logo {
+  font-size: 48px;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.sign-in-title {
+  font-family: var(--font-head);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text-1);
+  margin-bottom: 8px;
+}
+
+.sign-in-sub {
+  font-size: 14px;
+  color: var(--text-2);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.btn-google-large {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--surface-2);
+  color: var(--text-1);
+  border: 1px solid var(--border);
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  margin-bottom: 16px;
+}
+
+.btn-google-large:hover {
+  background: var(--surface-3);
+  border-color: var(--amber-dim);
+  box-shadow: 0 0 20px rgba(245,158,11,0.15);
+}
+
+.sign-in-note {
+  font-size: 11px;
+  color: var(--text-3);
+  letter-spacing: 0.03em;
+}
