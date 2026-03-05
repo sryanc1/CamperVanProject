@@ -157,7 +157,7 @@ body {
   flex-shrink: 0;
   transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
   z-index: 80;
-  margin-left: 16px;
+  margin-right: 16px;
 }
 
 .sidebar-inner {
@@ -288,7 +288,7 @@ body {
    CATEGORY CARDS
    ============================================================ */
 .card {
-  flex: 0 0 min(550px, calc(100vw - 30px));
+  flex: 0 0 min(700px, calc(100vw - 30px));
   height: 100%;
   scroll-snap-align: start;
   display: flex;
