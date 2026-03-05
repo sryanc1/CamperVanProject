@@ -90,11 +90,29 @@ function renderCard(category) {
 }
 
 // ── Item ─────────────────────────────────────────────────────
+function itemSelectedCost(item) {
+  if (!item.selectedOptionId) return null;
+  const opt = item.options.find(o => o.id === item.selectedOptionId);
+  if (!opt) return null;
+  const qty   = opt.quantity || 1;
+  const total = opt.cost * qty;
+  return total;
+}
+
 function renderItem(category, item) {
+  const cost  = itemSelectedCost(item);
+  const costBadge = cost !== null
+    ? `<span class="item-cost-badge">$${cost.toFixed(2)}</span>`
+    : (item.options.length > 0 ? `<span class="item-cost-badge item-cost-unset">—</span>` : "");
+
   return `
-    <div class="item">
-      <div class="item-header">
-        <strong>${item.name}</strong>
+    <div class="item item-collapsed">
+      <div class="item-header" data-action="toggle-item" data-category="${category.id}" data-item="${item.id}" style="cursor:pointer">
+        <div class="item-title-row">
+          <span class="item-chevron">▶</span>
+          <strong>${item.name}</strong>
+          ${costBadge}
+        </div>
         <div class="item-actions">
           <button class="btn-secondary btn-sm" data-action="add-option"
             data-category="${category.id}" data-item="${item.id}">+ Option</button>
@@ -102,7 +120,9 @@ function renderItem(category, item) {
             data-category="${category.id}" data-item="${item.id}">✕</button>
         </div>
       </div>
-      ${item.options.map(option => renderOption(category, item, option)).join("")}
+      <div class="item-body">
+        ${item.options.map(option => renderOption(category, item, option)).join("")}
+      </div>
     </div>`;
 }
 

@@ -921,3 +921,61 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 
 /* Drawer overlays shell via z-index — no shell shifting needed */
+
+/* ============================================================
+   COLLAPSIBLE ITEMS
+   ============================================================ */
+.item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.item-chevron {
+  font-size: 9px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+/* Expanded state — chevron points down */
+.item:not(.item-collapsed) .item-chevron {
+  transform: rotate(90deg);
+}
+
+/* Item body — hidden when collapsed */
+.item-body {
+  overflow: hidden;
+  max-height: 600px;       /* large enough for any realistic option list */
+  transition: max-height 0.25s ease, opacity 0.2s ease;
+  opacity: 1;
+}
+
+.item-collapsed .item-body {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Cost badge in item header */
+.item-cost-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 20px;
+  padding: 1px 8px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.item-cost-unset {
+  color: var(--text-3);
+  background: var(--surface-3);
+  border-color: var(--border);
+}

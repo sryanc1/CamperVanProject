@@ -62,4 +62,11 @@ appEl.addEventListener("click", e => {
   if (action === "add-option")      addOption(category, item);
   if (action === "remove-option")   removeOption(category, item, option);
   if (action === "select-option")   selectOption(category, item, option);
+  if (action === "toggle-item") {
+    // Avoid toggling when clicking the action buttons inside the header
+    if (e.target.closest("button")) return;
+    const itemEl = appEl.querySelector(`.item[data-item-id="${item}"]`)
+      || el.closest(".item");
+    if (itemEl) itemEl.classList.toggle("item-collapsed");
+  }
 });
