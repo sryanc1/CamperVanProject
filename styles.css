@@ -797,3 +797,24 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   flex-shrink: 0;
 }
 .preview-card:hover .preview-arrow { opacity: 1; }
+
+/* ============================================================
+   OPTION — ROW LAYOUT (with qty/notes/preview below)
+   ============================================================ */
+.option {
+  /* override previous flat flex — now a column */
+  display: block;
+  padding: 7px 8px;
+  margin: 4px 0;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: background 0.15s;
+}
+.option:hover { background: var(--surface-3); }
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.option-row .option-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

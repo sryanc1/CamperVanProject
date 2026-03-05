@@ -267,10 +267,7 @@ async function removeCategory(categoryId) {
 
 async function addItem(categoryId) {
   const result = await showModal([
-    { name: "name",     label: "Item Name", required: true, placeholder: "e.g. Leisure Battery, Roof Vent…" },
-    { name: "quantity", label: "Quantity",  type: "number", placeholder: "1" },
-    { name: "notes",    label: "Notes",     placeholder: "Any details, model numbers, specs…" },
-    { name: "url",      label: "Reference URL", placeholder: "https://…" },
+    { name: "name", label: "Item Name", required: true, placeholder: "e.g. Leisure Battery, Roof Vent…" },
   ], "New Item");
   if (!result) return;
   setState({
@@ -280,9 +277,6 @@ async function addItem(categoryId) {
         ? { ...cat, items: [...cat.items, {
             id: uid(),
             name: result.name.trim() || "New Item",
-            quantity: parseInt(result.quantity) || 1,
-            notes: result.notes.trim(),
-            url: result.url.trim(),
             selectedOptionId: null,
             options: []
           }] }
@@ -304,9 +298,11 @@ async function removeItem(categoryId, itemId) {
 
 async function addOption(categoryId, itemId) {
   const result = await showModal([
-    { name: "name", label: "Option Name", required: true, placeholder: "e.g. Renogy 100W Panel" },
-    { name: "cost", label: "Cost (£)", type: "number", placeholder: "0.00" },
-    { name: "url",  label: "URL", placeholder: "https://…" }
+    { name: "name",     label: "Option Name", required: true, placeholder: "e.g. Renogy 100W Panel" },
+    { name: "cost",     label: "Cost (£)", type: "number", placeholder: "0.00" },
+    { name: "quantity", label: "Quantity",    type: "number", placeholder: "1" },
+    { name: "url",      label: "Product URL", placeholder: "https://…" },
+    { name: "notes",    label: "Notes",       placeholder: "Specs, dimensions, supplier notes…" },
   ], "New Option");
   if (!result) return;
   setState({
@@ -315,7 +311,15 @@ async function addOption(categoryId, itemId) {
       cat.id === categoryId
         ? { ...cat, items: cat.items.map(item =>
             item.id === itemId
-              ? { ...item, options: [...item.options, { id: uid(), name: result.name.trim() || "New Option", cost: parseFloat(result.cost) || 0, url: result.url.trim(), image: "" }] }
+              ? { ...item, options: [...item.options, {
+                  id:       uid(),
+                  name:     result.name.trim() || "New Option",
+                  cost:     parseFloat(result.cost) || 0,
+                  quantity: parseInt(result.quantity) || 1,
+                  url:      result.url.trim(),
+                  notes:    result.notes.trim(),
+                  image:    ""
+                }] }
               : item
           )}
         : cat
@@ -506,23 +510,15 @@ function renderCard(category) {
 }
 
 function renderItem(category, item) {
-  const qty     = item.quantity && item.quantity > 1 ? `<span class="item-qty">×${item.quantity}</span>` : "";
-  const notes   = item.notes ? `<p class="item-notes">${item.notes}</p>` : "";
-  const preview = item.url ? `<div class="link-preview" id="preview-${item.id}">${renderPreview(item.url)}</div>` : "";
   return `
     <div class="item">
       <div class="item-header">
-        <div class="item-title-row">
-          <strong>${item.name}</strong>
-          ${qty}
-        </div>
+        <strong>${item.name}</strong>
         <div class="item-actions">
           <button class="btn-secondary btn-sm" data-action="add-option" data-category="${category.id}" data-item="${item.id}">+ Option</button>
           <button class="btn-danger-sm" data-action="remove-item" data-category="${category.id}" data-item="${item.id}">✕</button>
         </div>
       </div>
-      ${notes}
-      ${preview}
       ${item.options.map(option => renderOption(category, item, option)).join("")}
     </div>
   `;
@@ -564,7 +560,7 @@ function previewCardHTML(data, url) {
 
 async function fetchPreview(url) {
   try {
-    const api = `https://api.microlink.io?url=\${encodeURIComponent(url)}&palette=false&audio=false&video=false&iframe=false`;
+    const api = `https://api.microlink.io?url=${encodeURIComponent(url)}&palette=false&audio=false&video=false&iframe=false`;
     const res  = await fetch(api);
     const json = await res.json();
 
@@ -573,13 +569,13 @@ async function fetchPreview(url) {
       previewCache[url] = {
         title:   d.title  || "",
         domain:  new URL(url).hostname.replace("www.", ""),
-        favicon: d.logo?.url || `https://www.google.com/s2/favicons?domain=\${new URL(url).hostname}&sz=32`,
+        favicon: d.logo?.url || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`,
       };
     } else {
       previewCache[url] = {
         title:   "",
         domain:  new URL(url).hostname.replace("www.", ""),
-        favicon: `https://www.google.com/s2/favicons?domain=\${new URL(url).hostname}&sz=32`,
+        favicon: `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=32`,
       };
     }
   } catch {
@@ -590,28 +586,35 @@ async function fetchPreview(url) {
     };
   }
 
-  // Update in-place — find all preview divs using this URL without full re-render
+  // Update in-place — find preview divs for options with this URL
   document.querySelectorAll(".link-preview").forEach(el => {
-    const item = state.categories.flatMap(c => c.items).find(i => i.url === url && el.id === `preview-\${i.id}`);
-    if (item) el.innerHTML = previewCardHTML(previewCache[url], url);
+    const allOptions = state.categories.flatMap(c => c.items.flatMap(i => i.options));
+    const opt = allOptions.find(o => o.url === url && el.id === `preview-${o.id}`);
+    if (opt) el.innerHTML = previewCardHTML(previewCache[url], url);
   });
 }
 
 function renderOption(category, item, option) {
-  const urlHTML = option.url
-    ? `<a href="${option.url}" target="_blank" rel="noopener" class="option-link">↗</a>`
+  const qty     = option.quantity && option.quantity > 1 ? `<span class="item-qty">×${option.quantity}</span>` : "";
+  const notes   = option.notes ? `<p class="item-notes">${option.notes}</p>` : "";
+  const preview = option.url
+    ? `<div class="link-preview" id="preview-${option.id}">${renderPreview(option.url)}</div>`
     : "";
   return `
     <div class="option ${item.selectedOptionId === option.id ? "option-selected" : ""}">
-      <input type="radio" name="radio-${item.id}"
-        ${item.selectedOptionId === option.id ? "checked" : ""}
-        data-action="select-option"
-        data-category="${category.id}" data-item="${item.id}" data-option="${option.id}" />
-      <span class="option-name">${option.name}</span>
-      <span class="option-cost">£${option.cost.toFixed(2)}</span>
-      ${urlHTML}
-      <button class="btn-danger-sm" data-action="remove-option"
-        data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✕</button>
+      <div class="option-row">
+        <input type="radio" name="radio-${item.id}"
+          ${item.selectedOptionId === option.id ? "checked" : ""}
+          data-action="select-option"
+          data-category="${category.id}" data-item="${item.id}" data-option="${option.id}" />
+        <span class="option-name">${option.name}</span>
+        ${qty}
+        <span class="option-cost">£${option.cost.toFixed(2)}</span>
+        <button class="btn-danger-sm" data-action="remove-option"
+          data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✕</button>
+      </div>
+      ${notes}
+      ${preview}
     </div>
   `;
 }
