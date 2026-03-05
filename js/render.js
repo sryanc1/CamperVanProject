@@ -102,30 +102,43 @@ function renderCarousel() {
 // ── Card ─────────────────────────────────────────────────────
 function renderCard(category) {
   const imgSrc = `images/${categorySlug(category.name)}.jpg`;
+  const total  = categoryTotal(category);
+  const totalHTML = total > 0 ? `<span class="card-hero-total">$${total.toFixed(2)}</span>` : "";
   return `
     <div class="card" data-category="${category.id}">
+
+      <!-- Hero image — scrolls away -->
       <div class="card-hero">
         <img class="card-hero-img" src="${imgSrc}" alt="${category.name}"
           onerror="this.style.display='none'" onload="this.classList.add('loaded')" />
         <div class="card-hero-overlay"></div>
-        <div class="card-hero-title">
-          <span>${category.icon || ""} ${category.name}</span>
-          ${(() => { const t = categoryTotal(category); return t > 0 ? `<span class="card-hero-total">$${t.toFixed(2)}</span>` : ""; })()}
-        </div>
         <div class="card-hero-actions">
           <button class="btn-danger-sm" data-action="remove-category" data-category="${category.id}">✕ Remove</button>
         </div>
       </div>
+
+      <!-- Sticky title bar — pins to top when hero scrolls out of view -->
+      <div class="card-sticky-title">
+        <div class="card-sticky-title-text">
+          <span>${category.icon || ""} ${category.name}</span>
+          ${totalHTML}
+        </div>
+      </div>
+
+      <!-- Items -->
       <div class="card-body">
         ${category.items.length === 0
           ? `<p style="font-size:12px;color:var(--text-3);text-align:center;padding:20px 0">No items yet</p>`
           : category.items.map(item => renderItem(category, item)).join("")}
       </div>
+
+      <!-- Sticky footer -->
       <div class="card-body-footer">
         <button class="btn-secondary btn-sm" style="width:100%" data-action="add-item" data-category="${category.id}">
           + Add Item
         </button>
       </div>
+
     </div>`;
 }
 
