@@ -819,3 +819,107 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   gap: 8px;
 }
 .option-row .option-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ============================================================
+   FLOOR PLAN BUTTON
+   ============================================================ */
+.btn-floorplan {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  background: var(--surface-2);
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  padding: 7px 13px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn-floorplan:hover {
+  background: var(--surface-3);
+  border-color: var(--amber-dim);
+  color: var(--text-1);
+}
+.btn-floorplan.active {
+  background: var(--amber-glow);
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.btn-floorplan svg { flex-shrink: 0; }
+
+/* ============================================================
+   FLOOR PLAN DRAWER
+   ============================================================ */
+.floorplan-drawer {
+  position: fixed;
+  top: calc(var(--topbar-h) + var(--header-h));
+  left: 0;
+  right: 0;
+  z-index: 70;        /* below sidebar (80) so sidebar overlaps it on mobile */
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.floorplan-drawer.open {
+  max-height: 55vh;   /* generous but leaves carousel visible below */
+}
+
+.floorplan-drawer-inner {
+  position: relative;
+  width: 100%;
+  height: 55vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Blueprint grid overlay */
+  background-color: #0d110f;
+  background-image:
+    linear-gradient(rgba(96,200,150,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96,200,150,0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.floorplan-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.5));
+}
+
+/* Hide image, show message when src fails */
+.floorplan-drawer-inner .floorplan-img        { display: block; }
+.floorplan-drawer-inner .floorplan-no-image-msg { display: none;  }
+
+.floorplan-drawer-inner.no-image .floorplan-img         { display: none;  }
+.floorplan-drawer-inner.no-image .floorplan-no-image-msg { display: flex;  }
+
+.floorplan-no-image-msg {
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-3);
+  font-size: 14px;
+}
+.floorplan-no-image-msg span { font-size: 36px; opacity: 0.4; }
+.floorplan-no-image-msg code {
+  font-size: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 8px;
+  color: var(--amber);
+}
+
+/* Push shell down when drawer is open so cards aren't hidden under it */
+.shell.drawer-open {
+  top: calc(var(--topbar-h) + var(--header-h) + 55vh);
+}

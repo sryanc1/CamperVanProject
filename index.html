@@ -23,6 +23,28 @@
       <span class="page-brand-icon">🚐</span>
       <span class="page-brand-name">Van Build Planner</span>
     </div>
+    <button id="floorplan-btn" class="btn-floorplan" aria-label="Toggle floor plan">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+      </svg>
+      Floor Plan
+    </button>
+  </div>
+
+  <!-- FLOOR PLAN DRAWER -->
+  <div id="floorplan-drawer" class="floorplan-drawer" aria-hidden="true">
+    <div class="floorplan-drawer-inner">
+      <img
+        src="images/floorplan.jpg"
+        alt="Van floor plan"
+        class="floorplan-img"
+        onerror="this.closest('.floorplan-drawer-inner').classList.add('no-image')"
+      />
+      <div class="floorplan-no-image-msg">
+        <span>📐</span>
+        <p>Add your floor plan at <code>images/floorplan.jpg</code></p>
+      </div>
+    </div>
   </div>
 
   <!-- SHELL: sidebar + main -->
