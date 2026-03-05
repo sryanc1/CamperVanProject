@@ -45,6 +45,7 @@ let state = { categories: [] };
 let currentUser = null;
 let unsubSnapshot = null;
 let cardObserver = null;
+const previewCache = {};  // url -> { title, domain, favicon } | "loading" | "error"
 
 // ---------- UTIL ----------
 const uid = () => crypto.randomUUID();
@@ -269,6 +270,7 @@ async function addItem(categoryId) {
     { name: "name",     label: "Item Name", required: true, placeholder: "e.g. Leisure Battery, Roof Vent…" },
     { name: "quantity", label: "Quantity",  type: "number", placeholder: "1" },
     { name: "notes",    label: "Notes",     placeholder: "Any details, model numbers, specs…" },
+    { name: "url",      label: "Reference URL", placeholder: "https://…" },
   ], "New Item");
   if (!result) return;
   setState({
@@ -280,6 +282,7 @@ async function addItem(categoryId) {
             name: result.name.trim() || "New Item",
             quantity: parseInt(result.quantity) || 1,
             notes: result.notes.trim(),
+            url: result.url.trim(),
             selectedOptionId: null,
             options: []
           }] }
@@ -503,8 +506,9 @@ function renderCard(category) {
 }
 
 function renderItem(category, item) {
-  const qty   = item.quantity && item.quantity > 1 ? `<span class="item-qty">×${item.quantity}</span>` : "";
-  const notes = item.notes ? `<p class="item-notes">${item.notes}</p>` : "";
+  const qty     = item.quantity && item.quantity > 1 ? `<span class="item-qty">×${item.quantity}</span>` : "";
+  const notes   = item.notes ? `<p class="item-notes">${item.notes}</p>` : "";
+  const preview = item.url ? `<div class="link-preview" id="preview-${item.id}">${renderPreview(item.url)}</div>` : "";
   return `
     <div class="item">
       <div class="item-header">
@@ -518,9 +522,79 @@ function renderItem(category, item) {
         </div>
       </div>
       ${notes}
+      ${preview}
       ${item.options.map(option => renderOption(category, item, option)).join("")}
     </div>
   `;
+}
+
+function renderPreview(url) {
+  if (!url) return "";
+  const cached = previewCache[url];
+
+  // Already fetched successfully
+  if (cached && cached !== "loading" && cached !== "error") {
+    return previewCardHTML(cached, url);
+  }
+
+  // Kick off fetch if not already in flight
+  if (!cached) {
+    previewCache[url] = "loading";
+    fetchPreview(url);
+  }
+
+  return `<div class="link-preview-loading">⧖ Loading preview…</div>`;
+}
+
+function previewCardHTML(data, url) {
+  const favicon = data.favicon
+    ? `<img class="preview-favicon" src="${data.favicon}" onerror="this.style.display='none'" />`
+    : "";
+  return `
+    <a class="preview-card" href="${url}" target="_blank" rel="noopener">
+      ${favicon}
+      <div class="preview-text">
+        <span class="preview-title">${data.title || data.domain}</span>
+        <span class="preview-domain">${data.domain}</span>
+      </div>
+      <span class="preview-arrow">↗</span>
+    </a>
+  `;
+}
+
+async function fetchPreview(url) {
+  try {
+    const api = `https://api.microlink.io?url=\${encodeURIComponent(url)}&palette=false&audio=false&video=false&iframe=false`;
+    const res  = await fetch(api);
+    const json = await res.json();
+
+    if (json.status === "success") {
+      const d = json.data;
+      previewCache[url] = {
+        title:   d.title  || "",
+        domain:  new URL(url).hostname.replace("www.", ""),
+        favicon: d.logo?.url || `https://www.google.com/s2/favicons?domain=\${new URL(url).hostname}&sz=32`,
+      };
+    } else {
+      previewCache[url] = {
+        title:   "",
+        domain:  new URL(url).hostname.replace("www.", ""),
+        favicon: `https://www.google.com/s2/favicons?domain=\${new URL(url).hostname}&sz=32`,
+      };
+    }
+  } catch {
+    previewCache[url] = {
+      title:   "",
+      domain:  (() => { try { return new URL(url).hostname.replace("www.", ""); } catch { return url; } })(),
+      favicon: "",
+    };
+  }
+
+  // Update in-place — find all preview divs using this URL without full re-render
+  document.querySelectorAll(".link-preview").forEach(el => {
+    const item = state.categories.flatMap(c => c.items).find(i => i.url === url && el.id === `preview-\${i.id}`);
+    if (item) el.innerHTML = previewCardHTML(previewCache[url], url);
+  });
 }
 
 function renderOption(category, item, option) {
