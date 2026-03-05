@@ -266,14 +266,23 @@ async function removeCategory(categoryId) {
 
 async function addItem(categoryId) {
   const result = await showModal([
-    { name: "name", label: "Item Name", required: true, placeholder: "e.g. Leisure Battery, Roof Vent…" }
+    { name: "name",     label: "Item Name", required: true, placeholder: "e.g. Leisure Battery, Roof Vent…" },
+    { name: "quantity", label: "Quantity",  type: "number", placeholder: "1" },
+    { name: "notes",    label: "Notes",     placeholder: "Any details, model numbers, specs…" },
   ], "New Item");
   if (!result) return;
   setState({
     ...state,
     categories: state.categories.map(cat =>
       cat.id === categoryId
-        ? { ...cat, items: [...cat.items, { id: uid(), name: result.name.trim() || "New Item", selectedOptionId: null, options: [] }] }
+        ? { ...cat, items: [...cat.items, {
+            id: uid(),
+            name: result.name.trim() || "New Item",
+            quantity: parseInt(result.quantity) || 1,
+            notes: result.notes.trim(),
+            selectedOptionId: null,
+            options: []
+          }] }
         : cat
     )
   });
@@ -494,15 +503,21 @@ function renderCard(category) {
 }
 
 function renderItem(category, item) {
+  const qty   = item.quantity && item.quantity > 1 ? `<span class="item-qty">×${item.quantity}</span>` : "";
+  const notes = item.notes ? `<p class="item-notes">${item.notes}</p>` : "";
   return `
     <div class="item">
       <div class="item-header">
-        <strong>${item.name}</strong>
+        <div class="item-title-row">
+          <strong>${item.name}</strong>
+          ${qty}
+        </div>
         <div class="item-actions">
           <button class="btn-secondary btn-sm" data-action="add-option" data-category="${category.id}" data-item="${item.id}">+ Option</button>
           <button class="btn-danger-sm" data-action="remove-item" data-category="${category.id}" data-item="${item.id}">✕</button>
         </div>
       </div>
+      ${notes}
       ${item.options.map(option => renderOption(category, item, option)).join("")}
     </div>
   `;
