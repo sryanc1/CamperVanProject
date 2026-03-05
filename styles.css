@@ -105,6 +105,9 @@ body {
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Hamburger */
@@ -1073,4 +1076,23 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
    now that header-total has margin-left: auto */
 .btn-floorplan {
   margin-left: 0;
+}
+
+/* ============================================================
+   PAGE HEADER — MOBILE
+   ============================================================ */
+@media (max-width: 600px) {
+
+  /* Hide brand text, keep icon */
+  .page-brand-name { display: none; }
+
+  /* Icon-only floor plan button */
+  .btn-floorplan .btn-floorplan-label { display: none; }
+  .btn-floorplan { padding: 7px 10px; }
+
+  /* Hide header total — visible in sidebar instead */
+  .header-total { display: none !important; }
+
+  /* Tighten header gap */
+  .page-header { gap: 8px; padding: 0 12px; }
 }
