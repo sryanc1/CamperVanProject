@@ -3,6 +3,9 @@ import { auth, PROJECT_DOC, signIn, signOut, onAuthStateChanged, onSnapshot, set
 
 const appEl    = document.getElementById("app");
 const authEl   = document.getElementById("auth-bar");
+const sidebar  = document.getElementById("sidebar");
+const sidebarOverlay = document.getElementById("sidebar-overlay");
+const hamburger = document.getElementById("hamburger");
 
 // ---------- PREDEFINED CATEGORIES ----------
 const PRESET_CATEGORIES = [
@@ -30,10 +33,18 @@ const PRESET_CATEGORIES = [
   { name: "Custom",              icon: "✏️", description: "Add your own category" },
 ];
 
+// ---------- IMAGE SLUG ----------
+// e.g. "Wall Cladding" → "wall-cladding"
+// You put JPGs at: images/wall-cladding.jpg in your GitHub repo
+function categorySlug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 // ---------- STATE ----------
 let state = { categories: [] };
 let currentUser = null;
-let unsubSnapshot = null;   // Firestore listener handle
+let unsubSnapshot = null;
+let cardObserver = null;
 
 // ---------- UTIL ----------
 const uid = () => crypto.randomUUID();
@@ -42,17 +53,13 @@ const uid = () => crypto.randomUUID();
 let saveTimer = null;
 
 function scheduleWrite() {
-  // Debounce — wait 800ms after last change before writing
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     if (!currentUser) return;
+    setSyncStatus("saving");
     setDoc(PROJECT_DOC, { categories: state.categories })
       .then(() => setSyncStatus("saved"))
-      .catch(err => {
-        console.error("Firestore write failed:", err);
-        setSyncStatus("error");
-      });
-    setSyncStatus("saving");
+      .catch(err => { console.error("Write failed:", err); setSyncStatus("error"); });
   }, 800);
 }
 
@@ -60,31 +67,23 @@ function setSyncStatus(status) {
   const el = document.getElementById("sync-status");
   if (!el) return;
   const map = {
-    saving: { text: "Saving…",  colour: "var(--text-3)" },
-    saved:  { text: "Saved ✓",  colour: "var(--green)"  },
-    error:  { text: "Save failed ✗", colour: "var(--red)" },
-    live:   { text: "Live",     colour: "var(--amber)"  },
+    saving: { text: "Saving…",       colour: "var(--text-3)" },
+    saved:  { text: "Saved ✓",       colour: "var(--green)"  },
+    error:  { text: "Save failed ✗", colour: "var(--red)"    },
+    live:   { text: "Live",          colour: "var(--amber)"  },
   };
   const s = map[status] || map.live;
-  el.textContent    = s.text;
-  el.style.color    = s.colour;
+  el.textContent = s.text;
+  el.style.color  = s.colour;
 }
 
 function startListening() {
-  // Real-time listener — updates state whenever Firestore changes
   if (unsubSnapshot) unsubSnapshot();
   unsubSnapshot = onSnapshot(PROJECT_DOC, snap => {
-    if (snap.exists()) {
-      state = snap.data();
-    } else {
-      state = { categories: [] };
-    }
+    state = snap.exists() ? snap.data() : { categories: [] };
     render();
     setSyncStatus("live");
-  }, err => {
-    console.error("Snapshot error:", err);
-    setSyncStatus("error");
-  });
+  }, err => { console.error("Snapshot error:", err); setSyncStatus("error"); });
 }
 
 function stopListening() {
@@ -107,7 +106,6 @@ function attachSignIn(btnId) {
 function renderAuthBar(user) {
   if (!authEl) return;
   if (user) {
-    // Hide sign-in gate if visible
     const gate = document.getElementById("sign-in-gate");
     if (gate) gate.remove();
 
@@ -121,10 +119,7 @@ function renderAuthBar(user) {
     `;
     document.getElementById("sign-out-btn").addEventListener("click", () => signOut());
   } else {
-    // Minimal auth bar — just a small hint
     authEl.innerHTML = "";
-
-    // Show prominent centred sign-in gate if not already present
     if (!document.getElementById("sign-in-gate")) {
       const gate = document.createElement("div");
       gate.id = "sign-in-gate";
@@ -149,7 +144,6 @@ function renderAuthBar(user) {
 onAuthStateChanged(auth, user => {
   currentUser = user;
   renderAuthBar(user);
-
   if (user) {
     startListening();
     appEl.style.display = "";
@@ -158,14 +152,23 @@ onAuthStateChanged(auth, user => {
     state = { categories: [] };
     appEl.style.display = "none";
     appEl.innerHTML = "";
-    renderSignedOut();
   }
 });
 
-function renderSignedOut() {
-  if (!authEl) return;
-  // Auth bar already shows the sign-in button; nothing else needed in appEl
+// ---------- SIDEBAR TOGGLE ----------
+function openSidebar() {
+  sidebar.classList.add("open");
+  sidebarOverlay.classList.add("visible");
 }
+function closeSidebar() {
+  sidebar.classList.remove("open");
+  sidebarOverlay.classList.remove("visible");
+}
+
+hamburger.addEventListener("click", () => {
+  sidebar.classList.contains("open") ? closeSidebar() : openSidebar();
+});
+sidebarOverlay.addEventListener("click", closeSidebar);
 
 // ---------- ACTIONS ----------
 function setState(newState) {
@@ -234,16 +237,10 @@ function showCategoryPicker(usedNames) {
         document.querySelectorAll(".cat-option").forEach(o => o.classList.remove("cat-option-active"));
         el.classList.add("cat-option-active");
         selected = el.dataset.pick;
-
         const customWrap = document.getElementById("custom-name-wrap");
         const confirmBtn = document.getElementById("cat-confirm-btn");
-
-        if (selected === "Custom") {
-          customWrap.style.display = "block";
-          document.getElementById("custom-cat-input").focus();
-        } else {
-          customWrap.style.display = "none";
-        }
+        customWrap.style.display = selected === "Custom" ? "block" : "none";
+        if (selected === "Custom") document.getElementById("custom-cat-input").focus();
         confirmBtn.disabled = false;
       });
     });
@@ -272,12 +269,12 @@ async function addItem(categoryId) {
     { name: "name", label: "Item Name", required: true, placeholder: "e.g. Leisure Battery, Roof Vent…" }
   ], "New Item");
   if (!result) return;
-
-  const newItem = { id: uid(), name: result.name.trim() || "New Item", selectedOptionId: null, options: [] };
   setState({
     ...state,
     categories: state.categories.map(cat =>
-      cat.id === categoryId ? { ...cat, items: [...cat.items, newItem] } : cat
+      cat.id === categoryId
+        ? { ...cat, items: [...cat.items, { id: uid(), name: result.name.trim() || "New Item", selectedOptionId: null, options: [] }] }
+        : cat
     )
   });
 }
@@ -300,21 +297,13 @@ async function addOption(categoryId, itemId) {
     { name: "url",  label: "URL", placeholder: "https://…" }
   ], "New Option");
   if (!result) return;
-
-  const newOption = {
-    id:    uid(),
-    name:  result.name.trim() || "New Option",
-    cost:  parseFloat(result.cost) || 0,
-    url:   result.url.trim(),
-    image: ""
-  };
   setState({
     ...state,
     categories: state.categories.map(cat =>
       cat.id === categoryId
         ? { ...cat, items: cat.items.map(item =>
             item.id === itemId
-              ? { ...item, options: [...item.options, newOption] }
+              ? { ...item, options: [...item.options, { id: uid(), name: result.name.trim() || "New Option", cost: parseFloat(result.cost) || 0, url: result.url.trim(), image: "" }] }
               : item
           )}
         : cat
@@ -361,14 +350,8 @@ function showModal(fields, title) {
     const fieldsHTML = fields.map(f => `
       <label class="modal-label">
         ${f.label}
-        <input
-          type="${f.type || "text"}"
-          name="${f.name}"
-          class="modal-input"
-          value="${f.default || ""}"
-          placeholder="${f.placeholder || ""}"
-          ${f.required ? "required" : ""}
-        />
+        <input type="${f.type || "text"}" name="${f.name}" class="modal-input"
+          value="${f.default || ""}" placeholder="${f.placeholder || ""}" ${f.required ? "required" : ""} />
       </label>`).join("");
 
     document.getElementById("modal-overlay").innerHTML = `
@@ -384,10 +367,7 @@ function showModal(fields, title) {
       </div>
     `;
     document.getElementById("modal-overlay").style.display = "flex";
-    setTimeout(() => {
-      const first = document.querySelector("#modal-form input");
-      if (first) first.focus();
-    }, 50);
+    setTimeout(() => { const f = document.querySelector("#modal-form input"); if (f) f.focus(); }, 50);
   });
 }
 
@@ -399,7 +379,7 @@ function showConfirm(message) {
         <p class="modal-confirm-msg">${message}</p>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" data-modal="cancel">Cancel</button>
-          <button type="button" class="btn-danger"    data-modal="confirm">Remove</button>
+          <button type="button" class="btn-danger" data-modal="confirm">Remove</button>
         </div>
       </div>
     `;
@@ -428,27 +408,86 @@ document.getElementById("modal-overlay").addEventListener("submit", e => {
 
 // ---------- RENDER ----------
 function render() {
-  appEl.innerHTML = `
-    <div class="categories-toolbar">
-      <h2>Categories</h2>
-      <button class="btn-primary" data-action="add-category">+ Add Category</button>
-    </div>
-    ${state.categories.map(renderCategory).join("")}
-  `;
+  renderSidebar();
+  renderCarousel();
 }
 
-function renderCategory(category) {
+function renderSidebar() {
+  const nav = document.getElementById("sidebar-nav");
+  if (!nav) return;
+
+  if (state.categories.length === 0) {
+    nav.innerHTML = `<li class="sidebar-empty">No categories yet</li>`;
+    return;
+  }
+
+  nav.innerHTML = state.categories.map(cat => `
+    <li class="nav-item" data-nav-category="${cat.id}" title="${cat.name}">
+      <span class="nav-item-icon">${cat.icon || "📁"}</span>
+      <span class="nav-item-name">${cat.name}</span>
+    </li>
+  `).join("");
+
+  nav.querySelectorAll(".nav-item").forEach(el => {
+    el.addEventListener("click", () => {
+      scrollToCard(el.dataset.navCategory);
+      closeSidebar();
+    });
+  });
+}
+
+function renderCarousel() {
+  if (state.categories.length === 0) {
+    appEl.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🚐</div>
+        <p>Add your first category to get started.</p>
+      </div>
+    `;
+    return;
+  }
+
+  appEl.innerHTML = `
+    <div class="carousel" id="carousel">
+      ${state.categories.map(renderCard).join("")}
+    </div>
+  `;
+
+  setupCardObserver();
+}
+
+function renderCard(category) {
+  const slug = categorySlug(category.name);
+  const imgSrc = `images/${slug}.jpg`;
+
   return `
-    <div class="category">
-      <div class="category-header">
-        <h2>${category.icon || ""} ${category.name}</h2>
-        <div class="header-actions">
-          <button class="btn-secondary btn-sm" data-action="add-item" data-category="${category.id}">+ Add Item</button>
-          <button class="btn-danger-sm"        data-action="remove-category" data-category="${category.id}">✕ Remove</button>
+    <div class="card" data-category="${category.id}">
+      <div class="card-hero">
+        <img
+          class="card-hero-img"
+          src="${imgSrc}"
+          alt="${category.name}"
+          onerror="this.style.display='none'"
+          onload="this.classList.add('loaded')"
+        />
+        <div class="card-hero-overlay"></div>
+        <div class="card-hero-title">${category.icon || ""} ${category.name}</div>
+        <div class="card-hero-actions">
+          <button class="btn-danger-sm" data-action="remove-category" data-category="${category.id}">✕ Remove</button>
         </div>
       </div>
-      <div class="category-body">
-        ${category.items.map(item => renderItem(category, item)).join("")}
+
+      <div class="card-body">
+        ${category.items.length === 0
+          ? `<p style="font-size:12px;color:var(--text-3);text-align:center;padding:20px 0">No items yet</p>`
+          : category.items.map(item => renderItem(category, item)).join("")
+        }
+      </div>
+
+      <div class="card-body-footer">
+        <button class="btn-secondary btn-sm" style="width:100%" data-action="add-item" data-category="${category.id}">
+          + Add Item
+        </button>
       </div>
     </div>
   `;
@@ -459,9 +498,9 @@ function renderItem(category, item) {
     <div class="item">
       <div class="item-header">
         <strong>${item.name}</strong>
-        <div class="header-actions">
-          <button class="btn-secondary btn-sm" data-action="add-option"   data-category="${category.id}" data-item="${item.id}">+ Add Option</button>
-          <button class="btn-danger-sm"        data-action="remove-item"  data-category="${category.id}" data-item="${item.id}">✕</button>
+        <div class="item-actions">
+          <button class="btn-secondary btn-sm" data-action="add-option" data-category="${category.id}" data-item="${item.id}">+ Option</button>
+          <button class="btn-danger-sm" data-action="remove-item" data-category="${category.id}" data-item="${item.id}">✕</button>
         </div>
       </div>
       ${item.options.map(option => renderOption(category, item, option)).join("")}
@@ -471,32 +510,61 @@ function renderItem(category, item) {
 
 function renderOption(category, item, option) {
   const urlHTML = option.url
-    ? `<a href="${option.url}" target="_blank" rel="noopener" class="option-link">↗ Link</a>`
+    ? `<a href="${option.url}" target="_blank" rel="noopener" class="option-link">↗</a>`
     : "";
   return `
     <div class="option ${item.selectedOptionId === option.id ? "option-selected" : ""}">
-      <input
-        type="radio"
-        name="radio-${item.id}"
+      <input type="radio" name="radio-${item.id}"
         ${item.selectedOptionId === option.id ? "checked" : ""}
         data-action="select-option"
-        data-category="${category.id}"
-        data-item="${item.id}"
-        data-option="${option.id}"
-      />
+        data-category="${category.id}" data-item="${item.id}" data-option="${option.id}" />
       <span class="option-name">${option.name}</span>
       <span class="option-cost">£${option.cost.toFixed(2)}</span>
       ${urlHTML}
-      <button class="btn-danger-sm" data-action="remove-option" data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✕</button>
+      <button class="btn-danger-sm" data-action="remove-option"
+        data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✕</button>
     </div>
   `;
 }
 
+// ---------- CAROUSEL HELPERS ----------
+function scrollToCard(categoryId) {
+  const card = document.querySelector(`.card[data-category="${categoryId}"]`);
+  if (card) card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+}
+
+function setupCardObserver() {
+  if (cardObserver) cardObserver.disconnect();
+  const carousel = document.getElementById("carousel");
+  if (!carousel) return;
+
+  cardObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.dataset.category;
+        document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("nav-item-active"));
+        const navItem = document.querySelector(`.nav-item[data-nav-category="${id}"]`);
+        if (navItem) navItem.classList.add("nav-item-active");
+      }
+    });
+  }, { threshold: 0.5, root: carousel });
+
+  document.querySelectorAll(".card").forEach(card => cardObserver.observe(card));
+}
+
 // ---------- EVENT DELEGATION ----------
+// Sidebar add-category button
+document.getElementById("sidebar").addEventListener("click", e => {
+  if (e.target.closest("[data-action='add-category']")) addCategory();
+});
+
+// Main app area
 appEl.addEventListener("click", e => {
-  const action = e.target.dataset.action;
-  if (!action) return;
-  const { category, item, option } = e.target.dataset;
+  const el     = e.target.closest("[data-action]");
+  if (!el) return;
+  const action   = el.dataset.action;
+  const { category, item, option } = el.dataset;
+
   if (action === "add-category")    addCategory();
   if (action === "remove-category") removeCategory(category);
   if (action === "add-item")        addItem(category);

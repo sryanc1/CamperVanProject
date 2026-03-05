@@ -11,28 +11,43 @@
 </head>
 <body>
 
-  <!-- AUTH BAR -->
+  <!-- FIXED TOP BAR -->
   <div id="auth-bar" class="auth-bar"></div>
 
-  <!-- HERO -->
-  <header class="hero">
-    <img
-      class="hero-img"
-      src="https://images.unsplash.com/photo-1523987355523-c7b5b0dd90a7?w=1400&q=80&fit=crop"
-      alt="Van parked in the mountains at sunset"
-    />
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-      <p class="hero-eyebrow">Build Log</p>
-      <h1 class="hero-title">Van Project<br>Budget Planner</h1>
-      <p class="hero-sub">Track every component, compare options, stay on budget.</p>
+  <!-- PAGE HEADER (below auth bar) -->
+  <div class="page-header">
+    <button id="hamburger" class="hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="page-brand">
+      <span class="page-brand-icon">🚐</span>
+      <span class="page-brand-name">Van Build Planner</span>
     </div>
-  </header>
+  </div>
 
-  <!-- MAIN APP -->
-  <main>
-    <div id="app"></div>
-  </main>
+  <!-- SHELL: sidebar + main -->
+  <div class="shell">
+
+    <!-- SIDEBAR OVERLAY (mobile backdrop) -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- LEFT SIDEBAR -->
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-inner">
+        <p class="sidebar-label">Categories</p>
+        <ul id="sidebar-nav" class="sidebar-nav"></ul>
+      </div>
+      <div class="sidebar-footer">
+        <button class="btn-primary sidebar-add-btn" data-action="add-category">+ Add Category</button>
+      </div>
+    </nav>
+
+    <!-- MAIN: carousel lives here -->
+    <main class="main-area">
+      <div id="app"></div>
+    </main>
+
+  </div>
 
   <!-- Modal overlay -->
   <div id="modal-overlay" style="display:none;"></div>
