@@ -343,15 +343,26 @@ function setupCardObserver() {
   if (cardObserver) cardObserver.disconnect();
   const carousel = document.getElementById("carousel");
   if (!carousel) return;
-  cardObserver = new IntersectionObserver(entries => {
-    // Find the leftmost intersecting card in this batch — avoids last-one-wins
-    // when multiple cards intersect simultaneously on load or fast scroll
-    const intersecting = entries
-      .filter(e => e.isIntersecting)
-      .sort((a, b) => a.boundingClientRect.left - b.boundingClientRect.left);
+  // Track ALL currently-visible cards, not just the batch of changes
+  const visibleCards = new Set();
 
-    if (intersecting.length === 0) return;
-    const id = intersecting[0].target.dataset.category;
+  cardObserver = new IntersectionObserver(entries => {
+    // Update the visible set — entries only contains cards that changed state
+    entries.forEach(e => {
+      if (e.isIntersecting) visibleCards.add(e.target);
+      else                  visibleCards.delete(e.target);
+    });
+
+    if (visibleCards.size === 0) return;
+
+    // Pick the leftmost visible card by actual DOM scroll position
+    const leftmost = [...visibleCards].reduce((best, card) => {
+      const left = card.getBoundingClientRect().left;
+      return left < best.left ? { card, left } : best;
+    }, { card: null, left: Infinity }).card;
+
+    if (!leftmost) return;
+    const id = leftmost.dataset.category;
     document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("nav-item-active"));
     document.querySelector(`.nav-item[data-nav-category="${id}"]`)?.classList.add("nav-item-active");
   }, { threshold: 0.5, root: carousel });
