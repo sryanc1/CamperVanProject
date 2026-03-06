@@ -1111,3 +1111,154 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   /* Tighten header gap */
   .page-header { gap: 8px; padding: 0 12px; }
 }
+
+/* ============================================================
+   BUDGET CAP
+   ============================================================ */
+.header-budget-wrap {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+}
+
+.header-budget-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-right: 4px;
+}
+
+.header-budget-prefix {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.header-budget-input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  width: 80px;
+}
+.header-budget-input::placeholder { color: var(--text-3); }
+.header-budget-input:focus { color: var(--text-1); }
+
+/* Total pill colour states */
+.header-total[data-status="warn"],
+.sidebar-total[data-status="warn"] {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+.header-total[data-status="warn"] .header-total-amount,
+.sidebar-total[data-status="warn"] .sidebar-total-amount { color: var(--amber); }
+
+.header-total[data-status="over"],
+.sidebar-total[data-status="over"] {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+.header-total[data-status="over"] .header-total-amount,
+.sidebar-total[data-status="over"] .sidebar-total-amount { color: var(--red); }
+
+@media (max-width: 600px) {
+  .header-budget-wrap { display: none; }
+}
+
+/* ============================================================
+   CATEGORY NOTES
+   ============================================================ */
+.btn-notes-toggle {
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  opacity: 0.35;
+  padding: 2px 4px;
+  border-radius: 5px;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.btn-notes-toggle:hover  { opacity: 0.7; }
+.btn-notes-toggle.has-notes { opacity: 0.85; }
+
+.cat-notes-panel {
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.cat-notes-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--text-2);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.cat-notes-textarea::placeholder { color: var(--text-3); font-style: italic; }
+.cat-notes-textarea:focus {
+  border-color: var(--amber-dim);
+  color: var(--text-1);
+}
+
+/* ============================================================
+   PURCHASED TOGGLE
+   ============================================================ */
+.purchased-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.purchased-label input[type="checkbox"] {
+  display: none;
+}
+
+.purchased-tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-size: 11px;
+  color: transparent;
+  background: var(--surface-3);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.purchased-label:hover .purchased-tick {
+  border-color: var(--green);
+}
+
+.purchased-label input:checked ~ .purchased-tick {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* Purchased option — subtle strikethrough on name */
+.option-purchased .option-name {
+  text-decoration: line-through;
+  opacity: 0.5;
+}

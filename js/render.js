@@ -23,19 +23,35 @@ function grandTotal() {
 }
 
 function renderTotals() {
-  const total = grandTotal();
-  const fmt   = `$${total.toFixed(2)}`;
+  const total  = grandTotal();
+  const budget = getState().budget || 0;
+  const fmt    = `$${total.toFixed(2)}`;
+
+  // Budget status: none / warn (>80%) / over (>100%)
+  let budgetStatus = "none";
+  if (budget > 0) {
+    const pct = total / budget;
+    if (pct > 1)    budgetStatus = "over";
+    else if (pct > 0.8) budgetStatus = "warn";
+  }
 
   const headerEl  = document.getElementById("header-total");
   const sidebarEl = document.getElementById("sidebar-total");
+  const budgetInput = document.getElementById("budget-input");
+
+  if (budgetInput && budgetInput.value === "" && budget > 0) {
+    budgetInput.value = budget;
+  }
 
   if (headerEl) {
     headerEl.style.display = total > 0 ? "flex" : "none";
     headerEl.querySelector(".header-total-amount").textContent = fmt;
+    headerEl.dataset.status = budgetStatus;
   }
   if (sidebarEl) {
     sidebarEl.style.display = total > 0 ? "flex" : "none";
     sidebarEl.querySelector(".sidebar-total-amount").textContent = fmt;
+    sidebarEl.dataset.status = budgetStatus;
   }
 }
 
@@ -123,6 +139,22 @@ function renderCard(category) {
           <span>${category.icon || ""} ${category.name}</span>
           ${totalHTML}
         </div>
+        <button class="btn-notes-toggle ${category.notes ? 'has-notes' : ''}"
+          data-action="toggle-notes" data-category="${category.id}"
+          title="${category.notes ? 'View/edit notes' : 'Add notes'}">
+          📝
+        </button>
+      </div>
+
+      <!-- Category notes panel -->
+      <div class="cat-notes-panel" id="cat-notes-${category.id}" style="display:none">
+        <textarea
+          class="cat-notes-textarea"
+          data-action="edit-category-notes"
+          data-category="${category.id}"
+          placeholder="Measurements, constraints, decisions made…"
+          rows="4"
+        >${category.notes || ""}</textarea>
       </div>
 
       <!-- Items -->
@@ -186,8 +218,10 @@ function renderOption(category, item, option) {
   const preview = option.url
     ? `<div class="link-preview" id="preview-${option.id}">${renderPreview(option.url)}</div>`
     : "";
+  const purchased = option.purchased || false;
+  const purchasedClass = purchased ? "option-purchased" : "";
   return `
-    <div class="option ${item.selectedOptionId === option.id ? "option-selected" : ""}">
+    <div class="option ${item.selectedOptionId === option.id ? "option-selected" : ""} ${purchasedClass}">
       <div class="option-row">
         <input type="radio" name="radio-${item.id}"
           ${item.selectedOptionId === option.id ? "checked" : ""}
@@ -196,6 +230,13 @@ function renderOption(category, item, option) {
         <span class="option-name">${option.name}</span>
         ${qty}
         <span class="option-cost">$${option.cost.toFixed(2)}</span>
+        <label class="purchased-label" title="Mark as purchased">
+          <input type="checkbox" class="purchased-checkbox"
+            ${purchased ? "checked" : ""}
+            data-action="toggle-purchased"
+            data-category="${category.id}" data-item="${item.id}" data-option="${option.id}" />
+          <span class="purchased-tick">✓</span>
+        </label>
         <button class="btn-secondary btn-sm" data-action="edit-option"
           data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✎ Edit</button>
         <button class="btn-danger-sm" data-action="remove-option"

@@ -8,15 +8,23 @@ import { initAuth }         from "./js/auth.js";
 import {
   addCategory, removeCategory,
   addItem,     removeItem,
-  addOption,   removeOption,
+  addOption,   editOption,   removeOption,
   selectOption,
-  editOption,
+  setBudget, togglePurchased, updateCategoryNotes,
 } from "./js/actions.js";
 
 // ── Bootstrap ────────────────────────────────────────────────
 initSync(render);           // tell sync.js how to trigger a re-render
 initModalListeners();       // wire modal overlay click/submit handlers
 initAuth();                 // start Firebase auth listener
+
+// Budget input — debounced so it doesn't write on every keystroke
+const budgetInput = document.getElementById("budget-input");
+let budgetTimer = null;
+budgetInput.addEventListener("input", () => {
+  clearTimeout(budgetTimer);
+  budgetTimer = setTimeout(() => setBudget(budgetInput.value), 600);
+});
 
 // ── Sidebar toggle ───────────────────────────────────────────
 const sidebar        = document.getElementById("sidebar");
@@ -50,6 +58,17 @@ document.getElementById("sidebar").addEventListener("click", e => {
   if (e.target.closest("[data-action='add-category']")) addCategory();
 });
 
+// Category notes — save on input (debounced)
+let notesTimer = null;
+appEl.addEventListener("input", e => {
+  const el = e.target.closest("[data-action='edit-category-notes']");
+  if (!el) return;
+  clearTimeout(notesTimer);
+  notesTimer = setTimeout(() => {
+    updateCategoryNotes(el.dataset.category, el.value);
+  }, 600);
+});
+
 // Main carousel area
 appEl.addEventListener("click", e => {
   const el = e.target.closest("[data-action]");
@@ -61,11 +80,19 @@ appEl.addEventListener("click", e => {
   if (action === "add-item")        addItem(category);
   if (action === "remove-item")     removeItem(category, item);
   if (action === "add-option")      addOption(category, item);
-  if (action === "edit-option")    editOption(category, item, option);
-  if (action === "remove-option")   removeOption(category, item, option);
-  if (action === "select-option")   selectOption(category, item, option);
+  if (action === "edit-option")      editOption(category, item, option);
+  if (action === "remove-option")    removeOption(category, item, option);
+  if (action === "select-option")    selectOption(category, item, option);
+  if (action === "toggle-purchased") togglePurchased(category, item, option);
+  if (action === "toggle-notes") {
+    const panel = document.getElementById(`cat-notes-${category}`);
+    if (panel) {
+      const open = panel.style.display === "none";
+      panel.style.display = open ? "block" : "none";
+      if (open) panel.querySelector("textarea")?.focus();
+    }
+  }
   if (action === "toggle-item") {
-    // Avoid toggling when clicking the action buttons inside the header
     if (e.target.closest("button")) return;
     const itemEl = appEl.querySelector(`.item[data-item-id="${item}"]`)
       || el.closest(".item");
