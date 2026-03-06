@@ -344,12 +344,16 @@ function setupCardObserver() {
   const carousel = document.getElementById("carousel");
   if (!carousel) return;
   cardObserver = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const id = entry.target.dataset.category;
-      document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("nav-item-active"));
-      document.querySelector(`.nav-item[data-nav-category="${id}"]`)?.classList.add("nav-item-active");
-    });
+    // Find the leftmost intersecting card in this batch — avoids last-one-wins
+    // when multiple cards intersect simultaneously on load or fast scroll
+    const intersecting = entries
+      .filter(e => e.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.left - b.boundingClientRect.left);
+
+    if (intersecting.length === 0) return;
+    const id = intersecting[0].target.dataset.category;
+    document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("nav-item-active"));
+    document.querySelector(`.nav-item[data-nav-category="${id}"]`)?.classList.add("nav-item-active");
   }, { threshold: 0.5, root: carousel });
   document.querySelectorAll(".card").forEach(card => cardObserver.observe(card));
 }
