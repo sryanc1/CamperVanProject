@@ -27,19 +27,18 @@
       <span class="header-total-label">Estimated</span>
       <span class="header-total-amount">$0.00</span>
     </div>
-    <div id="header-spent" class="header-total header-spent" style="display:none">
-      <span class="header-total-label">Spent</span>
-      <span class="header-total-amount">$0.00</span>
-    </div>
-    <div id="header-remaining" class="header-total header-remaining" style="display:none">
-      <span class="header-total-label">Remaining</span>
-      <span class="header-total-amount">$0.00</span>
-    </div>
     <div class="header-budget-wrap" title="Set project budget">
       <span class="header-budget-label">Budget</span>
       <span class="header-budget-prefix">$</span>
       <input id="budget-input" class="header-budget-input" type="number" min="0" step="100" placeholder="0" />
     </div>
+    <button id="budget-btn" class="btn-floorplan" aria-label="Toggle budget overview">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+        <line x1="6" y1="20" x2="6" y2="14"/>
+      </svg>
+      <span class="btn-floorplan-label">Budget</span>
+    </button>
     <button id="floorplan-btn" class="btn-floorplan" aria-label="Toggle floor plan">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
@@ -61,6 +60,49 @@
         <span>📐</span>
         <p>Add your floor plan at <code>images/floorplan.jpg</code></p>
       </div>
+    </div>
+  </div>
+
+  <!-- BUDGET DRAWER -->
+  <div id="budget-drawer" class="floorplan-drawer" aria-hidden="true">
+    <div class="budget-drawer-inner">
+
+      <div class="budget-stat-grid">
+        <div class="budget-stat">
+          <span class="budget-stat-label">Budget</span>
+          <span class="budget-stat-amount" id="bd-budget">—</span>
+        </div>
+        <div class="budget-stat">
+          <span class="budget-stat-label">Estimated</span>
+          <span class="budget-stat-amount" id="bd-estimated">$0.00</span>
+        </div>
+        <div class="budget-stat">
+          <span class="budget-stat-label">Spent</span>
+          <span class="budget-stat-amount" id="bd-spent">$0.00</span>
+        </div>
+        <div class="budget-stat">
+          <span class="budget-stat-label">Remaining</span>
+          <span class="budget-stat-amount" id="bd-remaining">—</span>
+        </div>
+      </div>
+
+      <div class="budget-bars">
+        <div class="budget-bar-row">
+          <span class="budget-bar-label">Estimated vs Budget</span>
+          <div class="budget-bar-track">
+            <div class="budget-bar-fill budget-bar-estimated" id="bd-bar-estimated"></div>
+          </div>
+          <span class="budget-bar-pct" id="bd-pct-estimated">—</span>
+        </div>
+        <div class="budget-bar-row">
+          <span class="budget-bar-label">Spent vs Budget</span>
+          <div class="budget-bar-track">
+            <div class="budget-bar-fill budget-bar-spent" id="bd-bar-spent"></div>
+          </div>
+          <span class="budget-bar-pct" id="bd-pct-spent">—</span>
+        </div>
+      </div>
+
     </div>
   </div>
 

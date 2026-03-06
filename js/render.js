@@ -33,55 +33,66 @@ function spentTotal() {
 }
 
 function renderTotals() {
-  const total   = grandTotal();
-  const spent   = spentTotal();
-  const budget  = getState().budget || 0;
+  const total     = grandTotal();
+  const spent     = spentTotal();
+  const budget    = getState().budget || 0;
   const remaining = budget > 0 ? budget - spent : null;
 
-  // Budget status driven by spent vs budget (not estimated)
-  let budgetStatus = "none";
-  if (budget > 0) {
-    const pct = spent / budget;
-    if (pct > 1)         budgetStatus = "over";
-    else if (pct > 0.8)  budgetStatus = "warn";
-  }
+  const pctEstimated = budget > 0 ? Math.min(total / budget, 1) : 0;
+  const pctSpent     = budget > 0 ? Math.min(spent / budget, 1) : 0;
 
+  // Status colour driven by spent vs budget
+  const spentStatus = budget > 0
+    ? (spent / budget > 1 ? "over" : spent / budget > 0.8 ? "warn" : "ok")
+    : "ok";
+
+  // Budget input
   const budgetInput = document.getElementById("budget-input");
   if (budgetInput && budgetInput.value === "" && budget > 0) {
     budgetInput.value = budget;
   }
 
-  // Estimated total
+  // Header — estimated pill + budget input only
   const headerEl = document.getElementById("header-total");
   if (headerEl) {
     headerEl.style.display = total > 0 ? "flex" : "none";
     headerEl.querySelector(".header-total-amount").textContent = `$${total.toFixed(2)}`;
   }
 
-  // Spent
-  const spentEl = document.getElementById("header-spent");
-  if (spentEl) {
-    spentEl.style.display = spent > 0 ? "flex" : "none";
-    spentEl.querySelector(".header-total-amount").textContent = `$${spent.toFixed(2)}`;
-    spentEl.dataset.status = budgetStatus;
-  }
-
-  // Remaining
-  const remainingEl = document.getElementById("header-remaining");
-  if (remainingEl && remaining !== null) {
-    remainingEl.style.display = "flex";
-    remainingEl.querySelector(".header-total-amount").textContent = `$${remaining.toFixed(2)}`;
-    remainingEl.dataset.status = remaining < 0 ? "over" : remaining < budget * 0.2 ? "warn" : "none";
-  } else if (remainingEl) {
-    remainingEl.style.display = "none";
-  }
-
-  // Sidebar total (estimated)
+  // Sidebar (estimated)
   const sidebarEl = document.getElementById("sidebar-total");
   if (sidebarEl) {
     sidebarEl.style.display = total > 0 ? "flex" : "none";
     sidebarEl.querySelector(".sidebar-total-amount").textContent = `$${total.toFixed(2)}`;
   }
+
+  // Budget drawer stats
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  const setStatus = (id, status) => { const el = document.getElementById(id); if (el) el.dataset.status = status; };
+
+  set("bd-budget",    budget > 0 ? `$${budget.toFixed(2)}` : "Not set");
+  set("bd-estimated", `$${total.toFixed(2)}`);
+  set("bd-spent",     `$${spent.toFixed(2)}`);
+  set("bd-remaining", remaining !== null ? `$${remaining.toFixed(2)}` : "—");
+
+  setStatus("bd-spent",     spentStatus);
+  setStatus("bd-remaining", remaining !== null
+    ? (remaining < 0 ? "over" : remaining < budget * 0.2 ? "warn" : "ok")
+    : "ok");
+
+  // Progress bars
+  const setBar = (id, pct, status) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.width = `${(pct * 100).toFixed(1)}%`;
+    el.dataset.status = status;
+  };
+  setBar("bd-bar-estimated", pctEstimated, pctEstimated > 1 ? "over" : pctEstimated > 0.8 ? "warn" : "ok");
+  setBar("bd-bar-spent",     pctSpent,     spentStatus);
+
+  const pctFmt = pct => budget > 0 ? `${(pct * 100).toFixed(0)}%` : "—";
+  set("bd-pct-estimated", pctFmt(pctEstimated));
+  set("bd-pct-spent",     pctFmt(pctSpent));
 }
 
 // ── Entry point ──────────────────────────────────────────────

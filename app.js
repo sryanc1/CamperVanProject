@@ -43,13 +43,24 @@ sidebarOverlay.addEventListener("click", closeSidebar);
 // ── Floor plan drawer toggle ─────────────────────────────────
 const floorplanBtn    = document.getElementById("floorplan-btn");
 const floorplanDrawer = document.getElementById("floorplan-drawer");
+const budgetBtn       = document.getElementById("budget-btn");
+const budgetDrawer    = document.getElementById("budget-drawer");
 
-floorplanBtn.addEventListener("click", () => {
-  const isOpen = floorplanDrawer.classList.toggle("open");
-  floorplanBtn.classList.toggle("active", isOpen);
-  floorplanBtn.setAttribute("aria-expanded", isOpen);
-  floorplanDrawer.setAttribute("aria-hidden", !isOpen);
-});
+function toggleDrawer(btn, drawer, otherBtn, otherDrawer) {
+  const isOpen = drawer.classList.toggle("open");
+  btn.classList.toggle("active", isOpen);
+  btn.setAttribute("aria-expanded", isOpen);
+  drawer.setAttribute("aria-hidden", !isOpen);
+  // Close the other drawer if open
+  if (isOpen && otherDrawer.classList.contains("open")) {
+    otherDrawer.classList.remove("open");
+    otherBtn.classList.remove("active");
+    otherDrawer.setAttribute("aria-hidden", true);
+  }
+}
+
+floorplanBtn.addEventListener("click", () => toggleDrawer(floorplanBtn, floorplanDrawer, budgetBtn, budgetDrawer));
+budgetBtn.addEventListener("click",    () => toggleDrawer(budgetBtn, budgetDrawer, floorplanBtn, floorplanDrawer));
 
 // ── Event delegation ─────────────────────────────────────────
 const appEl = document.getElementById("app");

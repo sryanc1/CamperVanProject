@@ -1170,7 +1170,8 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 .sidebar-total[data-status="over"] .sidebar-total-amount { color: var(--red); }
 
 @media (max-width: 600px) {
-  .header-budget-wrap { display: none; }
+  .header-budget-label { display: none; }  /* just hide label, keep $ + input */
+  .header-budget-input { width: 60px; }
 }
 
 /* ============================================================
@@ -1376,3 +1377,116 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   .header-spent,
   .header-remaining { display: none !important; }
 }
+
+/* ============================================================
+   BUDGET DRAWER
+   ============================================================ */
+.budget-drawer-inner {
+  width: 100%;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  background: var(--surface);
+  box-sizing: border-box;
+}
+
+/* Stat grid */
+.budget-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .budget-stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.budget-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.budget-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+}
+
+.budget-stat-amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Stat status colours */
+#bd-spent[data-status="warn"],
+#bd-remaining[data-status="warn"] { color: var(--amber); }
+#bd-spent[data-status="over"],
+#bd-remaining[data-status="over"] { color: var(--red); }
+
+/* Progress bars */
+.budget-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.budget-bar-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 44px;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .budget-bar-row { grid-template-columns: 100px 1fr 36px; }
+}
+
+.budget-bar-label {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.budget-bar-track {
+  height: 8px;
+  background: var(--surface-3);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  width: 0%;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
+}
+
+.budget-bar-estimated { background: var(--amber); }
+.budget-bar-spent     { background: var(--green); }
+
+.budget-bar-fill[data-status="warn"] { background: var(--amber); }
+.budget-bar-fill[data-status="over"] { background: var(--red);   }
+.budget-bar-spent[data-status="ok"]  { background: var(--green); }
+
+.budget-bar-pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Remove old header spent/remaining rules — no longer in header */
+.header-spent,
+.header-remaining { display: none !important; }
