@@ -360,7 +360,7 @@ body {
   padding: 10px 14px 14px;
   background: var(--surface);
   border-top: 1px solid var(--border-soft);
-  z-index: 15;
+  z-index: 5;
 }
 
 /* Sticky title bar */
@@ -1295,3 +1295,12 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   padding: 0;
 }
 .btn-link:hover { opacity: 0.8; }
+
+/* ============================================================
+   MOBILE — STICKY TITLE AT TOP OF CARD BY DEFAULT
+   ============================================================ */
+@media (max-width: 768px) {
+  .card-sticky-title {
+    order: -1;   /* float above the hero in the flex column */
+  }
+}
