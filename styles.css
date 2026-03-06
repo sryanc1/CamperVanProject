@@ -157,7 +157,6 @@ body {
   flex-shrink: 0;
   transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
   z-index: 80;
-  margin-left: 16px;
   margin-right: 16px;
 }
 
@@ -361,7 +360,7 @@ body {
   padding: 10px 14px 14px;
   background: var(--surface);
   border-top: 1px solid var(--border-soft);
-  z-index: 5;
+  z-index: 15;
 }
 
 /* Sticky title bar */
