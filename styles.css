@@ -1300,7 +1300,8 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
    MOBILE — STICKY TITLE AT TOP OF CARD BY DEFAULT
    ============================================================ */
 @media (max-width: 768px) {
-  .card-sticky-title {
+  .card-sticky-title,
+  .cat-notes-panel {
     order: -1;   /* float above the hero in the flex column */
   }
 }
