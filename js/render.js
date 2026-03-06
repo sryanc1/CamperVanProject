@@ -147,14 +147,23 @@ function renderCard(category) {
       </div>
 
       <!-- Category notes panel -->
-      <div class="cat-notes-panel" id="cat-notes-${category.id}" style="display:none">
+      <div class="cat-notes-panel" id="cat-notes-${category.id}" style="display:none"
+           data-saved-notes="${(category.notes || "").replace(/"/g, '&quot;')}">
         <textarea
           class="cat-notes-textarea"
-          data-action="edit-category-notes"
-          data-category="${category.id}"
           placeholder="Measurements, constraints, decisions made…"
           rows="4"
         >${category.notes || ""}</textarea>
+        <div class="cat-notes-footer">
+          <span class="cat-notes-conflict" style="display:none">
+            ⚠ Updated remotely —
+            <button class="btn-link" data-action="notes-discard" data-category="${category.id}">discard my changes</button>
+          </span>
+          <span class="cat-notes-saved" style="display:none">Saved ✓</span>
+          <button class="btn-secondary btn-sm" data-action="save-category-notes" data-category="${category.id}">
+            Save
+          </button>
+        </div>
       </div>
 
       <!-- Items -->
@@ -302,6 +311,32 @@ async function fetchPreview(url) {
 export function scrollToCard(categoryId) {
   const card = document.querySelector(`.card[data-category="${categoryId}"]`);
   if (card) card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+}
+
+// Called by sync.js when a Firestore update arrives.
+// If a notes panel is open and dirty (unsaved local changes), flag the conflict.
+export function checkNotesConflicts(updatedCategories) {
+  updatedCategories.forEach(cat => {
+    const panel = document.getElementById(`cat-notes-${cat.id}`);
+    if (!panel || panel.style.display === "none") return;
+
+    const textarea   = panel.querySelector(".cat-notes-textarea");
+    const savedNotes = panel.dataset.savedNotes;
+    const localDirty = textarea && textarea.value !== savedNotes;
+
+    // Remote value changed from what we last saved
+    const remoteChanged = cat.notes !== savedNotes;
+
+    if (localDirty && remoteChanged) {
+      // Show conflict warning, offer to discard
+      panel.querySelector(".cat-notes-conflict").style.display = "inline";
+      panel.querySelector(".cat-notes-saved").style.display    = "none";
+    } else if (remoteChanged && !localDirty) {
+      // No local edits — silently update the textarea and saved marker
+      if (textarea) textarea.value = cat.notes || "";
+      panel.dataset.savedNotes = cat.notes || "";
+    }
+  });
 }
 
 function setupCardObserver() {

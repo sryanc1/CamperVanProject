@@ -3,6 +3,7 @@
 
 import { PROJECT_DOC, onSnapshot, setDoc } from "../firebase.js";
 import { getState, updateState } from "./state.js";
+import { checkNotesConflicts } from "./render.js";
 
 export let currentUser = null;
 export const setCurrentUser = u => { currentUser = u; };
@@ -43,7 +44,9 @@ export function scheduleWrite() {
 export function startListening() {
   if (unsubSnapshot) unsubSnapshot();
   unsubSnapshot = onSnapshot(PROJECT_DOC, snap => {
-    updateState(snap.exists() ? snap.data() : { categories: [] });
+    const incoming = snap.exists() ? snap.data() : { categories: [], budget: 0 };
+    checkNotesConflicts(incoming.categories || []);
+    updateState(incoming);
     if (_onUpdate) _onUpdate();
     setSyncStatus("live");
   }, err => { console.error("Snapshot error:", err); setSyncStatus("error"); });

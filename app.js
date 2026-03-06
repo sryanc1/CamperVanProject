@@ -2,6 +2,7 @@
 // Entry point. Wires modules together and handles UI events.
 
 import { render }           from "./js/render.js";
+import { getState }         from "./js/state.js";
 import { initSync }         from "./js/sync.js";
 import { initModalListeners } from "./js/modal.js";
 import { initAuth }         from "./js/auth.js";
@@ -58,17 +59,6 @@ document.getElementById("sidebar").addEventListener("click", e => {
   if (e.target.closest("[data-action='add-category']")) addCategory();
 });
 
-// Category notes — save on input (debounced)
-let notesTimer = null;
-appEl.addEventListener("input", e => {
-  const el = e.target.closest("[data-action='edit-category-notes']");
-  if (!el) return;
-  clearTimeout(notesTimer);
-  notesTimer = setTimeout(() => {
-    updateCategoryNotes(el.dataset.category, el.value);
-  }, 600);
-});
-
 // Main carousel area
 appEl.addEventListener("click", e => {
   const el = e.target.closest("[data-action]");
@@ -91,6 +81,33 @@ appEl.addEventListener("click", e => {
       panel.style.display = open ? "block" : "none";
       if (open) panel.querySelector("textarea")?.focus();
     }
+  }
+  if (action === "save-category-notes") {
+    const panel = document.getElementById(`cat-notes-${category}`);
+    if (!panel) return;
+    const textarea   = panel.querySelector(".cat-notes-textarea");
+    const savedEl    = panel.querySelector(".cat-notes-saved");
+    const conflictEl = panel.querySelector(".cat-notes-conflict");
+    const notes      = textarea?.value || "";
+    updateCategoryNotes(category, notes);
+    // Update the saved marker so future conflict checks use the new baseline
+    panel.dataset.savedNotes = notes;
+    conflictEl.style.display = "none";
+    savedEl.style.display    = "inline";
+    setTimeout(() => { savedEl.style.display = "none"; }, 2000);
+  }
+  if (action === "notes-discard") {
+    const panel = document.getElementById(`cat-notes-${category}`);
+    if (!panel) return;
+    const textarea   = panel.querySelector(".cat-notes-textarea");
+    const conflictEl = panel.querySelector(".cat-notes-conflict");
+    // Reset textarea to whatever Firestore currently has
+    const current = getState().categories.find(c => c.id === category);
+    if (textarea && current) {
+      textarea.value       = current.notes || "";
+      panel.dataset.savedNotes = current.notes || "";
+    }
+    conflictEl.style.display = "none";
   }
   if (action === "toggle-item") {
     if (e.target.closest("button")) return;

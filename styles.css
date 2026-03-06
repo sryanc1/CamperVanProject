@@ -1262,3 +1262,37 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   text-decoration: line-through;
   opacity: 0.5;
 }
+
+/* ============================================================
+   NOTES PANEL FOOTER (save button + conflict state)
+   ============================================================ */
+.cat-notes-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.cat-notes-conflict {
+  font-size: 12px;
+  color: var(--amber);
+  flex: 1;
+}
+
+.cat-notes-saved {
+  font-size: 12px;
+  color: var(--green);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--amber);
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.btn-link:hover { opacity: 0.8; }
