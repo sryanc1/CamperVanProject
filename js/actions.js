@@ -158,13 +158,16 @@ export async function removeOption(categoryId, itemId, optionId) {
 }
 
 export function selectOption(categoryId, itemId, optionId) {
-  const state = getState();
+  const state   = getState();
+  const item    = state.categories.flatMap(c => c.items).find(i => i.id === itemId);
+  // If already selected — deselect; otherwise select
+  const newSelection = item?.selectedOptionId === optionId ? null : optionId;
   setState({
     ...state,
     categories: state.categories.map(cat =>
       cat.id === categoryId
-        ? { ...cat, items: cat.items.map(item =>
-            item.id === itemId ? { ...item, selectedOptionId: optionId } : item
+        ? { ...cat, items: cat.items.map(i =>
+            i.id === itemId ? { ...i, selectedOptionId: newSelection } : i
           )}
         : cat
     ),

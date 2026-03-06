@@ -83,7 +83,13 @@ appEl.addEventListener("click", e => {
   if (action === "add-option")      addOption(category, item);
   if (action === "edit-option")      editOption(category, item, option);
   if (action === "remove-option")    removeOption(category, item, option);
-  if (action === "select-option")    selectOption(category, item, option);
+  if (action === "select-option") {
+    // Radio buttons don't fire when re-clicking an already-checked input.
+    // We intercept the click before the browser sets checked, so e.target.checked
+    // still reflects the *previous* state — if it was already checked, deselect.
+    e.preventDefault();
+    selectOption(category, item, option);
+  }
   if (action === "toggle-purchased") togglePurchased(category, item, option);
   if (action === "toggle-notes") {
     const panel = document.getElementById(`cat-notes-${category}`);

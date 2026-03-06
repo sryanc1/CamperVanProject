@@ -35,7 +35,8 @@ export function scheduleWrite() {
   saveTimer = setTimeout(() => {
     if (!currentUser) return;
     setSyncStatus("saving");
-    setDoc(PROJECT_DOC, { categories: getState().categories })
+    const { categories, budget } = getState();
+    setDoc(PROJECT_DOC, { categories, budget: budget || 0 })
       .then(() => setSyncStatus("saved"))
       .catch(err => { console.error("Write failed:", err); setSyncStatus("error"); });
   }, 800);
