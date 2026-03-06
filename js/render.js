@@ -112,7 +112,7 @@ function renderCarousel() {
       ${categories.map(renderCard).join("")}
     </div>`;
 
-  //setupCardObserver();
+  setupCardObserver();
 }
 
 // ── Card ─────────────────────────────────────────────────────
