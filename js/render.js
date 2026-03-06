@@ -22,36 +22,65 @@ function grandTotal() {
   return getState().categories.reduce((sum, cat) => sum + categoryTotal(cat), 0);
 }
 
-function renderTotals() {
-  const total  = grandTotal();
-  const budget = getState().budget || 0;
-  const fmt    = `$${total.toFixed(2)}`;
+function spentTotal() {
+  return getState().categories.reduce((sum, cat) =>
+    sum + cat.items.reduce((s, item) =>
+      s + item.options.reduce((os, o) =>
+        os + (o.purchased && o.actualCost != null ? o.actualCost : 0)
+      , 0)
+    , 0)
+  , 0);
+}
 
-  // Budget status: none / warn (>80%) / over (>100%)
+function renderTotals() {
+  const total   = grandTotal();
+  const spent   = spentTotal();
+  const budget  = getState().budget || 0;
+  const remaining = budget > 0 ? budget - spent : null;
+
+  // Budget status driven by spent vs budget (not estimated)
   let budgetStatus = "none";
   if (budget > 0) {
-    const pct = total / budget;
-    if (pct > 1)    budgetStatus = "over";
-    else if (pct > 0.8) budgetStatus = "warn";
+    const pct = spent / budget;
+    if (pct > 1)         budgetStatus = "over";
+    else if (pct > 0.8)  budgetStatus = "warn";
   }
 
-  const headerEl  = document.getElementById("header-total");
-  const sidebarEl = document.getElementById("sidebar-total");
   const budgetInput = document.getElementById("budget-input");
-
   if (budgetInput && budgetInput.value === "" && budget > 0) {
     budgetInput.value = budget;
   }
 
+  // Estimated total
+  const headerEl = document.getElementById("header-total");
   if (headerEl) {
     headerEl.style.display = total > 0 ? "flex" : "none";
-    headerEl.querySelector(".header-total-amount").textContent = fmt;
-    headerEl.dataset.status = budgetStatus;
+    headerEl.querySelector(".header-total-amount").textContent = `$${total.toFixed(2)}`;
   }
+
+  // Spent
+  const spentEl = document.getElementById("header-spent");
+  if (spentEl) {
+    spentEl.style.display = spent > 0 ? "flex" : "none";
+    spentEl.querySelector(".header-total-amount").textContent = `$${spent.toFixed(2)}`;
+    spentEl.dataset.status = budgetStatus;
+  }
+
+  // Remaining
+  const remainingEl = document.getElementById("header-remaining");
+  if (remainingEl && remaining !== null) {
+    remainingEl.style.display = "flex";
+    remainingEl.querySelector(".header-total-amount").textContent = `$${remaining.toFixed(2)}`;
+    remainingEl.dataset.status = remaining < 0 ? "over" : remaining < budget * 0.2 ? "warn" : "none";
+  } else if (remainingEl) {
+    remainingEl.style.display = "none";
+  }
+
+  // Sidebar total (estimated)
+  const sidebarEl = document.getElementById("sidebar-total");
   if (sidebarEl) {
     sidebarEl.style.display = total > 0 ? "flex" : "none";
-    sidebarEl.querySelector(".sidebar-total-amount").textContent = fmt;
-    sidebarEl.dataset.status = budgetStatus;
+    sidebarEl.querySelector(".sidebar-total-amount").textContent = `$${total.toFixed(2)}`;
   }
 }
 
@@ -229,27 +258,37 @@ function renderOption(category, item, option) {
     : "";
   const purchased = option.purchased || false;
   const purchasedClass = purchased ? "option-purchased" : "";
+  const actualBadge = purchased && option.actualCost != null
+    ? `<span class="actual-cost-badge">paid $${option.actualCost.toFixed(2)}</span>`
+    : "";
   return `
     <div class="option ${item.selectedOptionId === option.id ? "option-selected" : ""} ${purchasedClass}">
       <div class="option-row">
-        <input type="radio" name="radio-${item.id}"
-          ${item.selectedOptionId === option.id ? "checked" : ""}
-          data-action="select-option"
-          data-category="${category.id}" data-item="${item.id}" data-option="${option.id}" />
-        <span class="option-name">${option.name}</span>
-        ${qty}
-        <span class="option-cost">$${option.cost.toFixed(2)}</span>
-        <label class="purchased-label" title="Mark as purchased">
-          <input type="checkbox" class="purchased-checkbox"
-            ${purchased ? "checked" : ""}
-            data-action="toggle-purchased"
+        <!-- Line 1: select + name + remove -->
+        <div class="option-line option-line-1">
+          <input type="radio" name="radio-${item.id}"
+            ${item.selectedOptionId === option.id ? "checked" : ""}
+            data-action="select-option"
             data-category="${category.id}" data-item="${item.id}" data-option="${option.id}" />
-          <span class="purchased-tick">✓</span>
-        </label>
-        <button class="btn-secondary btn-sm" data-action="edit-option"
-          data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✎ Edit</button>
-        <button class="btn-danger-sm" data-action="remove-option"
-          data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✕</button>
+          <span class="option-name">${option.name}</span>
+          <button class="btn-danger-sm" data-action="remove-option"
+            data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✕</button>
+        </div>
+        <!-- Line 2: qty + unit price + edit + purchased -->
+        <div class="option-line option-line-2">
+          ${qty}
+          <span class="option-cost">$${option.cost.toFixed(2)}</span>
+          ${actualBadge}
+          <button class="btn-secondary btn-sm" data-action="edit-option"
+            data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✎ Edit</button>
+          <label class="purchased-label" title="Mark as purchased">
+            <input type="checkbox" class="purchased-checkbox"
+              ${purchased ? "checked" : ""}
+              data-action="toggle-purchased"
+              data-category="${category.id}" data-item="${item.id}" data-option="${option.id}" />
+            <span class="purchased-tick">✓</span>
+          </label>
+        </div>
       </div>
       ${notes}
       ${preview}

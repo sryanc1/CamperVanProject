@@ -1263,6 +1263,40 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 
 /* ============================================================
+   OPTION TWO-LINE LAYOUT
+   ============================================================ */
+.option-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.option-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Line 1: radio stretches name to fill available space */
+.option-line-1 .option-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Line 2: indent to align under name, push controls right */
+.option-line-2 {
+  padding-left: 22px;   /* aligns with name start past the radio button */
+  gap: 8px;
+}
+
+.option-line-2 .option-cost {
+  margin-right: auto;   /* pushes edit + purchased to the right */
+}
+
+/* ============================================================
    NOTES PANEL FOOTER (save button + conflict state)
    ============================================================ */
 .cat-notes-footer {
@@ -1304,4 +1338,41 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   .cat-notes-panel {
     order: -1;   /* float above the hero in the flex column */
   }
+}
+
+/* ============================================================
+   SPENT + REMAINING HEADER PILLS
+   ============================================================ */
+
+/* Spent — neutral green by default, inherits warn/over from data-status */
+.header-spent .header-total-label  { color: var(--text-3); }
+.header-spent .header-total-amount { color: var(--green);  }
+
+/* Remaining — blue-ish neutral, warn/over via data-status */
+.header-remaining .header-total-label  { color: var(--text-3); }
+.header-remaining .header-total-amount { color: var(--text-2); }
+
+/* data-status overrides for spent + remaining */
+.header-spent[data-status="warn"] .header-total-amount,
+.header-remaining[data-status="warn"] .header-total-amount { color: var(--amber); }
+
+.header-spent[data-status="over"] .header-total-amount,
+.header-remaining[data-status="over"] .header-total-amount { color: var(--red); }
+
+/* Actual cost badge — sits in line 2 after estimated price */
+.actual-cost-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 20px;
+  padding: 1px 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hide spent/remaining on mobile — sidebar has the summary */
+@media (max-width: 600px) {
+  .header-spent,
+  .header-remaining { display: none !important; }
 }

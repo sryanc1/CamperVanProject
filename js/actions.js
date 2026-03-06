@@ -178,8 +178,39 @@ export function setBudget(value) {
 }
 
 // ── Purchased toggle ─────────────────────────────────────────
-export function togglePurchased(categoryId, itemId, optionId) {
-  const state = getState();
+export async function togglePurchased(categoryId, itemId, optionId) {
+  const state  = getState();
+  const option = state.categories
+    .flatMap(c => c.items.flatMap(i => i.options))
+    .find(o => o.id === optionId);
+  if (!option) return;
+
+  // Unchecking — clear actual cost, no prompt needed
+  if (option.purchased) {
+    setState({
+      ...state,
+      categories: state.categories.map(cat =>
+        cat.id === categoryId
+          ? { ...cat, items: cat.items.map(item =>
+              item.id === itemId
+                ? { ...item, options: item.options.map(o =>
+                    o.id === optionId ? { ...o, purchased: false, actualCost: null } : o
+                  )}
+                : item
+            )}
+          : cat
+      ),
+    });
+    return;
+  }
+
+  // Checking — prompt for actual price, pre-filled with estimated cost
+  const result = await showModal([
+    { name: "actualCost", label: "Actual price paid ($)", type: "number",
+      default: option.cost * (option.quantity || 1), placeholder: "0.00" },
+  ], "Mark as Purchased");
+  if (!result) return;   // cancelled — leave checkbox unticked
+
   setState({
     ...state,
     categories: state.categories.map(cat =>
@@ -187,7 +218,10 @@ export function togglePurchased(categoryId, itemId, optionId) {
         ? { ...cat, items: cat.items.map(item =>
             item.id === itemId
               ? { ...item, options: item.options.map(o =>
-                  o.id === optionId ? { ...o, purchased: !o.purchased } : o
+                  o.id === optionId
+                    ? { ...o, purchased: true,
+                        actualCost: parseFloat(result.actualCost) || 0 }
+                    : o
                 )}
               : item
           )}
