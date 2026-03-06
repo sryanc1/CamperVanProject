@@ -1278,13 +1278,19 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   gap: 7px;
 }
 
-/* Line 1: radio stretches name to fill available space */
+/* Line 1: radio + name float left, remove button floats right */
+.option-line-1 {
+  justify-content: flex-start;
+}
 .option-line-1 .option-name {
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.option-line-1 .btn-danger-sm {
+  margin-left: auto;
 }
 
 /* Line 2: indent to align under name, push controls right */
