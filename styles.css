@@ -289,7 +289,7 @@ body {
    CATEGORY CARDS
    ============================================================ */
 .card {
-  flex: 0 0 min(700px, calc(100vw - 30px));
+  flex: 0 0 min(350px, calc(100vw - 30px));
   height: 100%;
   scroll-snap-align: start;
   display: flex;
