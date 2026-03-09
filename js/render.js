@@ -69,7 +69,8 @@ function renderTotals() {
   // Budget drawer stats — IDs are on the card divs, amounts on the child span
   const set = (id, val) => {
     const el = document.getElementById(id);
-    if (el) el.querySelector(".budget-stat-amount").textContent = val;
+    const amountEl = el?.querySelector(".budget-stat-amount");
+    if (amountEl) amountEl.textContent = val;
   };
   const setStatus = (id, status) => { const el = document.getElementById(id); if (el) el.dataset.status = status; };
 
