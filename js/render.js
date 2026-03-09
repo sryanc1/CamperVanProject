@@ -66,8 +66,11 @@ function renderTotals() {
     sidebarEl.querySelector(".sidebar-total-amount").textContent = `$${total.toFixed(2)}`;
   }
 
-  // Budget drawer stats
-  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  // Budget drawer stats — IDs are on the card divs, amounts on the child span
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.querySelector(".budget-stat-amount").textContent = val;
+  };
   const setStatus = (id, status) => { const el = document.getElementById(id); if (el) el.dataset.status = status; };
 
   set("bd-budget",    budget > 0 ? `$${budget.toFixed(2)}` : "Not set");
@@ -239,8 +242,10 @@ function renderItem(category, item) {
     ? `<span class="item-cost-badge">$${cost.toFixed(2)}</span>`
     : (item.options.length > 0 ? `<span class="item-cost-badge item-cost-unset">—</span>` : "");
 
+  const isPurchased = item.options.some(o => o.purchased);
+
   return `
-    <div class="item item-collapsed">
+    <div class="item item-collapsed ${isPurchased ? "item-complete" : ""}">
       <div class="item-header" data-action="toggle-item" data-category="${category.id}" data-item="${item.id}" style="cursor:pointer">
         <div class="item-title-row">
           <span class="item-chevron">▶</span>

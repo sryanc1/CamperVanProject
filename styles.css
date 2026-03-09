@@ -157,6 +157,7 @@ body {
   flex-shrink: 0;
   transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
   z-index: 80;
+  margin-left: 16px;
   margin-right: 16px;
 }
 
@@ -1258,8 +1259,19 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   opacity: 0.5;
 }
 
+/* ============================================================
+   OPTION TWO-LINE LAYOUT
+   ============================================================ */
+.option-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 /* Line 1: radio + name float left, remove button floats right */
 .option-line-1 {
+  display: flex;
+  gap: 7px;
   justify-content: flex-start;
 }
 .option-line-1 .option-name {
@@ -1275,6 +1287,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 
 /* Line 2: indent to align under name, push controls right */
 .option-line-2 {
+  display: flex;
   padding-left: 22px;   /* aligns with name start past the radio button */
   gap: 8px;
 }
@@ -1395,7 +1408,9 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   padding: 16px 18px;
   background: var(--surface-2);
   border: 1px solid var(--border);
+  border-left-width: 3px;
   border-radius: 12px;
+  position: relative;
 }
 
 .budget-stat-label {
@@ -1404,20 +1419,69 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.budget-stat-label::before {
+  font-size: 14px;
+  opacity: 0.8;
 }
 
 .budget-stat-amount {
   font-size: 24px;
   font-weight: 700;
-  color: var(--text-1);
   font-variant-numeric: tabular-nums;
 }
 
-/* Stat status colours */
-#bd-spent[data-status="warn"],
-#bd-remaining[data-status="warn"] { color: var(--amber); }
-#bd-spent[data-status="over"],
-#bd-remaining[data-status="over"] { color: var(--red); }
+/* Budget — blue, target/cap */
+#bd-budget {
+  border-left-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.05);
+}
+#bd-budget .budget-stat-label::before { content: "🎯"; }
+#bd-budget .budget-stat-amount        { color: #60a5fa; }
+
+/* Estimated — amber, planned spend */
+#bd-estimated {
+  border-left-color: var(--amber);
+  background: rgba(245, 158, 11, 0.05);
+}
+#bd-estimated .budget-stat-label::before { content: "📋"; }
+#bd-estimated .budget-stat-amount        { color: var(--amber); }
+
+/* Spent — green, money out */
+#bd-spent {
+  border-left-color: var(--green);
+  background: rgba(74, 222, 128, 0.05);
+}
+#bd-spent .budget-stat-label::before { content: "💳"; }
+#bd-spent .budget-stat-amount        { color: var(--green); }
+
+/* Remaining — dynamic: green → amber → red */
+#bd-remaining {
+  border-left-color: var(--green);
+  background: rgba(74, 222, 128, 0.05);
+}
+#bd-remaining .budget-stat-label::before { content: "🏦"; }
+#bd-remaining .budget-stat-amount        { color: var(--green); }
+
+#bd-remaining[data-status="warn"] {
+  border-left-color: var(--amber);
+  background: rgba(245, 158, 11, 0.05);
+}
+#bd-remaining[data-status="warn"] .budget-stat-amount { color: var(--amber); }
+
+#bd-remaining[data-status="over"] {
+  border-left-color: var(--red);
+  background: rgba(239, 68, 68, 0.05);
+}
+#bd-remaining[data-status="over"] .budget-stat-amount { color: var(--red); }
+
+/* Spent status overrides */
+#bd-spent[data-status="warn"] .budget-stat-amount { color: var(--amber); }
+#bd-spent[data-status="over"] .budget-stat-amount { color: var(--red);   }
 
 /* Progress bars */
 .budget-bars {
@@ -1476,3 +1540,23 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 /* Remove old header spent/remaining rules — no longer in header */
 .header-spent,
 .header-remaining { display: none !important; }
+
+/* ============================================================
+   ITEM COMPLETE STATE (at least one option purchased)
+   ============================================================ */
+.item-complete {
+  border-color: rgba(74, 222, 128, 0.25);
+  background: rgba(74, 222, 128, 0.04);
+}
+
+.item-complete .item-header {
+  border-bottom-color: rgba(74, 222, 128, 0.15);
+}
+
+.item-complete .item-chevron {
+  color: var(--green);
+}
+
+.item-complete > .item-header .item-title-row strong {
+  color: var(--green);
+}
