@@ -1372,10 +1372,10 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
    ============================================================ */
 .budget-drawer-inner {
   width: 100%;
-  padding: 28px 32px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 16px;
   background: var(--surface);
   box-sizing: border-box;
 }
@@ -1384,45 +1384,58 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 .budget-stat-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  gap: 10px;
 }
 
 @media (max-width: 600px) {
-  .budget-stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .budget-stat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 400px) {
+  .budget-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .budget-stat {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 16px 18px;
+  gap: 4px;
+  padding: 10px 12px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-left-width: 3px;
-  border-radius: 12px;
+  border-radius: 10px;
   position: relative;
 }
 
 .budget-stat-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--text-3);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .budget-stat-label::before {
-  font-size: 14px;
+  font-size: 12px;
   opacity: 0.8;
 }
 
 .budget-stat-amount {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 600px) {
+  .budget-stat-amount { font-size: 15px; }
+  .budget-stat { padding: 8px 10px; }
 }
 
 /* Budget — blue, target/cap */
