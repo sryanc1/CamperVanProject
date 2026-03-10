@@ -223,7 +223,8 @@ export async function togglePurchased(categoryId, itemId, optionId) {
               ? { ...item, options: item.options.map(o =>
                   o.id === optionId
                     ? { ...o, purchased: true,
-                        actualCost: parseFloat(result.actualCost) || 0 }
+                        actualCost:   parseFloat(result.actualCost) || 0,
+                        originalCost: option.cost * (option.quantity || 1) }
                     : o
                 )}
               : item

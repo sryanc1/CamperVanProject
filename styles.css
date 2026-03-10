@@ -1383,7 +1383,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 /* Stat grid */
 .budget-stat-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
 }
 
@@ -1472,6 +1472,26 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 /* Spent status overrides */
 #bd-spent[data-status="warn"] .budget-stat-amount { color: var(--amber); }
 #bd-spent[data-status="over"] .budget-stat-amount { color: var(--red);   }
+
+/* Variance — green = under, red = over, neutral = no data */
+#bd-variance {
+  border-left-color: var(--text-3);
+  background: var(--surface-2);
+}
+#bd-variance .budget-stat-label::before { content: "📊"; }
+#bd-variance .budget-stat-amount        { color: var(--text-3); }
+
+#bd-variance[data-status="good"] {
+  border-left-color: var(--green);
+  background: rgba(74, 222, 128, 0.05);
+}
+#bd-variance[data-status="good"] .budget-stat-amount { color: var(--green); }
+
+#bd-variance[data-status="over"] {
+  border-left-color: var(--red);
+  background: rgba(239, 68, 68, 0.05);
+}
+#bd-variance[data-status="over"] .budget-stat-amount { color: var(--red); }
 
 /* Progress bars */
 .budget-bars {

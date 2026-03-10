@@ -28,6 +28,19 @@ function grandTotal() {
   return getState().categories.reduce((sum, cat) => sum + categoryTotal(cat), 0);
 }
 
+function varianceTotal() {
+  // Spent − original estimates on purchased options
+  // Negative = under budget (good), Positive = over budget (bad)
+  return getState().categories.reduce((sum, cat) =>
+    sum + cat.items.reduce((s, item) =>
+      s + item.options.reduce((os, o) => {
+        if (!o.purchased || o.actualCost == null || o.originalCost == null) return os;
+        return os + (o.actualCost - o.originalCost);
+      }, 0)
+    , 0)
+  , 0);
+}
+
 function spentTotal() {
   return getState().categories.reduce((sum, cat) =>
     sum + cat.items.reduce((s, item) =>
@@ -74,15 +87,24 @@ function renderTotals() {
   };
   const setStatus = (id, status) => { const el = document.getElementById(id); if (el) el.dataset.status = status; };
 
+  const variance = varianceTotal();
+  const hasVariance = getState().categories.some(cat =>
+    cat.items.some(item => item.options.some(o => o.purchased && o.originalCost != null))
+  );
+
   set("bd-budget",    budget > 0 ? `$${budget.toFixed(2)}` : "Not set");
   set("bd-estimated", `$${total.toFixed(2)}`);
   set("bd-spent",     `$${spent.toFixed(2)}`);
   set("bd-remaining", remaining !== null ? `$${remaining.toFixed(2)}` : "—");
+  set("bd-variance",  hasVariance
+    ? `${variance > 0 ? "+" : ""}$${variance.toFixed(2)}`
+    : "—");
 
   setStatus("bd-spent",     spentStatus);
   setStatus("bd-remaining", remaining !== null
     ? (remaining < 0 ? "over" : remaining < budget * 0.2 ? "warn" : "ok")
     : "ok");
+  setStatus("bd-variance",  !hasVariance ? "none" : variance > 0 ? "over" : variance < 0 ? "good" : "ok");
 
   // Progress bars
   const setBar = (id, pct, status) => {
