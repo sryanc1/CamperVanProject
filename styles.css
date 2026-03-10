@@ -669,12 +669,11 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 .sign-in-card {
   position: relative;
   z-index: 1;
-  background: rgba(28, 26, 21, 0.82);
+  background: rgba(28, 26, 21, 0.2);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 20px;
   padding: 48px 44px;
-  width: 100%;
   max-width: 380px;
   text-align: center;
   box-shadow: 0 40px 100px rgba(0,0,0,0.7);
