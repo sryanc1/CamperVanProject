@@ -239,8 +239,12 @@ function itemSelectedCost(item) {
 
 function renderItem(category, item) {
   const cost  = itemSelectedCost(item);
-  const costBadge = cost !== null
-    ? `<span class="item-cost-badge">$${cost.toFixed(2)}</span>`
+  const selectedOpt = item.options.find(o => o.id === item.selectedOptionId);
+  const displayCost = selectedOpt?.purchased && selectedOpt?.actualCost != null
+    ? selectedOpt.actualCost
+    : cost;
+  const costBadge = displayCost !== null
+    ? `<span class="item-cost-badge ${selectedOpt?.purchased ? "item-cost-purchased" : ""}">$${displayCost.toFixed(2)}</span>`
     : (item.options.length > 0 ? `<span class="item-cost-badge item-cost-unset">—</span>` : "");
 
   const isPurchased = item.options.some(o => o.purchased);
@@ -293,8 +297,8 @@ function renderOption(category, item, option) {
         </div>
         <!-- Line 2a: pricing info -->
         <div class="option-line option-line-2a">
-          ${qty}
           <span class="option-cost">$${option.cost.toFixed(2)}</span>
+          ${qty}
           ${actualBadge}
         </div>
         <!-- Line 2b: actions -->

@@ -157,7 +157,7 @@ body {
   flex-shrink: 0;
   transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
   z-index: 80;
-  margin-right: 16px;
+  margin-left: 16px;
 }
 
 .sidebar-inner {
@@ -1268,12 +1268,16 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   gap: 4px;
 }
 
-/* Line 1: radio + name float left, remove button floats right */
-.option-line-1 {
+/* Option lines — all share same base layout */
+.option-line-1,
+.option-line-2a,
+.option-line-2b {
   display: flex;
-  gap: 7px;
+  gap: 8px;
   justify-content: flex-start;
 }
+
+/* Line 1 specifics */
 .option-line-1 .option-name {
   flex: 1;
   min-width: 0;
@@ -1285,19 +1289,10 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   margin-left: auto;
 }
 
-/* Line 2a: pricing — qty, unit cost, actual paid */
-.option-line-2a {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Line 2b: actions — edit button, purchased toggle */
+/* Lines 2a + 2b: indent under name */
+.option-line-2a,
 .option-line-2b {
-  display: flex;
-  align-items: center;
   padding-left: 22px;
-  gap: 10px;
 }
 
 .purchased-label-text {
@@ -1305,6 +1300,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   color: var(--text-3);
   font-weight: 500;
   transition: color 0.15s;
+  padding-left: 5px;
 }
 
 .purchased-label input:checked ~ .purchased-tick ~ .purchased-label-text,
@@ -1353,6 +1349,9 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   .card-sticky-title,
   .cat-notes-panel {
     order: -1;   /* float above the hero in the flex column */
+  }
+  .card-hero {
+    height: 300px;
   }
 }
 
@@ -1575,4 +1574,11 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 
 .item-complete > .item-header .item-title-row strong {
   color: var(--green);
+}
+
+/* Purchased cost badge on item header — green to signal actual spend */
+.item-cost-badge.item-cost-purchased {
+  color: var(--green);
+  background: rgba(74, 222, 128, 0.1);
+  border-color: rgba(74, 222, 128, 0.25);
 }
