@@ -298,8 +298,10 @@ function renderOption(category, item, option) {
         </div>
         <!-- Line 2a: pricing info -->
         <div class="option-line option-line-2a">
-          <span class="option-cost">$${option.cost.toFixed(2)}</span>
-          ${qty}
+          <div class="option-line-2a-left">
+            <span class="option-cost">$${option.cost.toFixed(2)}</span>
+            ${qty}
+          </div>
           ${actualBadge}
         </div>
         <!-- Line 2b: actions -->

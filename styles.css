@@ -1280,7 +1280,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 .option-line-2b {
   display: flex;
   gap: 8px;
-  justify-content: flex-start;
+  justify-content: space-between;
 }
 
 /* Line 1 specifics */
@@ -1291,14 +1291,11 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.option-line-1 .btn-danger-sm {
-  margin-left: auto;
-}
 
-/* Lines 2a + 2b: indent under name */
-.option-line-2a,
-.option-line-2b {
-  padding-left: 22px;
+.option-line-2a-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .purchased-label-text {
