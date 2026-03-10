@@ -243,8 +243,9 @@ function renderItem(category, item) {
   const displayCost = selectedOpt?.purchased && selectedOpt?.actualCost != null
     ? selectedOpt.actualCost
     : cost;
+  const isPaid = selectedOpt?.purchased && selectedOpt?.actualCost != null;
   const costBadge = displayCost !== null
-    ? `<span class="item-cost-badge ${selectedOpt?.purchased ? "item-cost-purchased" : ""}">$${displayCost.toFixed(2)}</span>`
+    ? `<span class="item-cost-badge ${isPaid ? "item-cost-paid" : ""}">$${displayCost.toFixed(2)}</span>`
     : (item.options.length > 0 ? `<span class="item-cost-badge item-cost-unset">—</span>` : "");
 
   const isPurchased = item.options.some(o => o.purchased);
