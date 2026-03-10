@@ -35,14 +35,12 @@ function renderAuthBar(user) {
       const gate = document.createElement("div");
       gate.id = "sign-in-gate";
       gate.innerHTML = `
+        <div class="sign-in-bg"></div>
         <div class="sign-in-card">
-          <div class="sign-in-logo">🚐</div>
           <h2 class="sign-in-title">Van Build Planner</h2>
-          <p class="sign-in-sub">Sign in to access your shared build tracker.</p>
           <button class="btn-google-large" id="sign-in-btn-gate">
             ${GOOGLE_SVG} Sign in with Google
           </button>
-          <p class="sign-in-note">Only authorised accounts can access this project.</p>
         </div>`;
       document.body.appendChild(gate);
       document.getElementById("sign-in-btn-gate")

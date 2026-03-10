@@ -650,23 +650,35 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(11,10,7,0.85);
-  backdrop-filter: blur(6px);
-  animation: fade-in 0.4s ease;
+  animation: fade-in 0.6s ease;
 }
 
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
+/* Full-bleed background image */
+.sign-in-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1533591380348-14193f1de18f?w=1600&auto=format&fit=crop&q=80');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.45);
+  z-index: 0;
+}
+
 .sign-in-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+  background: rgba(28, 26, 21, 0.82);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 20px;
   padding: 48px 44px;
   width: 100%;
   max-width: 380px;
   text-align: center;
   box-shadow: 0 40px 100px rgba(0,0,0,0.7);
-  animation: card-up 0.4s cubic-bezier(0.16,1,0.3,1);
+  animation: card-up 0.5s cubic-bezier(0.16,1,0.3,1);
 }
 
 @keyframes card-up {
@@ -674,18 +686,14 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.sign-in-logo { font-size: 48px; margin-bottom: 16px; line-height: 1; }
-
 .sign-in-title {
   font-family: var(--font-head);
   font-size: 30px;
   font-weight: 700;
   letter-spacing: 0.03em;
   color: var(--text-1);
-  margin-bottom: 8px;
+  margin-bottom: 32px;
 }
-
-.sign-in-sub { font-size: 14px; color: var(--text-2); margin-bottom: 32px; line-height: 1.6; }
 
 .btn-google-large {
   display: flex;
@@ -711,7 +719,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   box-shadow: 0 0 20px rgba(245,158,11,0.15);
 }
 
-.sign-in-note { font-size: 11px; color: var(--text-3); letter-spacing: 0.03em; }
+/* sign-in-note removed */
 
 /* ============================================================
    ITEM — QUANTITY & NOTES
@@ -1758,7 +1766,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 
 .db-item-cell { color: var(--text-2); }
 
-.db-option-name { color: var(--amber); font-weight: 500; }
+.db-selected-tick { color: var(--amber); font-size: 15px; font-weight: 700; }
 .db-no-selection { color: var(--text-3); font-style: italic; }
 
 .db-no-items {
@@ -1772,7 +1780,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 .db-row-gap td { opacity: 0.6; }
 .db-row-gap .db-item-cell { color: var(--red); }
 
-.db-purchased-cell { text-align: center; }
+.db-purchased-cell, .db-option-cell { text-align: center; }
 .db-purchased-tick  { color: var(--green); font-size: 15px; font-weight: 700; }
 .db-purchased-empty { color: var(--text-3); font-size: 18px; }
 

@@ -472,7 +472,7 @@ function renderDashboard() {
         : "";
 
       const optionCell = selected
-        ? `<span class="db-option-name">${selected.name}</span>`
+        ? `<span class="db-selected-tick">✓</span>`
         : `<span class="db-no-selection">—</span>`;
 
       const purchasedCell = selected
