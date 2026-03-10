@@ -2,6 +2,7 @@
 // Google sign-in gate and auth bar.
 
 import { auth, signIn, signOut, onAuthStateChanged } from "../firebase.js";
+import { openDashboard } from "./render.js";
 import { updateState }    from "./state.js";
 import { render }         from "./render.js";
 import { setCurrentUser, startListening, stopListening } from "./sync.js";
@@ -57,6 +58,8 @@ export function initAuth() {
     if (user) {
       startListening();
       appEl.style.display = "";
+      // Slight delay so Firestore data loads before dashboard renders
+      setTimeout(openDashboard, 800);
     } else {
       stopListening();
       updateState({ categories: [] });

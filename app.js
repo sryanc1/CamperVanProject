@@ -1,7 +1,7 @@
 // ── app.js ───────────────────────────────────────────────────
 // Entry point. Wires modules together and handles UI events.
 
-import { render }           from "./js/render.js";
+import { render, openDashboard, closeDashboard } from "./js/render.js";
 import { getState }         from "./js/state.js";
 import { initSync }         from "./js/sync.js";
 import { initModalListeners } from "./js/modal.js";
@@ -61,6 +61,16 @@ function toggleDrawer(btn, drawer, otherBtn, otherDrawer) {
 
 floorplanBtn.addEventListener("click", () => toggleDrawer(floorplanBtn, floorplanDrawer, budgetBtn, budgetDrawer));
 budgetBtn.addEventListener("click",    () => toggleDrawer(budgetBtn, budgetDrawer, floorplanBtn, floorplanDrawer));
+
+const dashboardBtn      = document.getElementById("dashboard-btn");
+const dashboardClose    = document.getElementById("dashboard-close");
+const dashboardCloseBtn = document.getElementById("dashboard-close-btn");
+const dashboardModal    = document.getElementById("dashboard-modal");
+
+dashboardBtn.addEventListener("click", openDashboard);
+dashboardClose.addEventListener("click", closeDashboard);
+dashboardCloseBtn.addEventListener("click", closeDashboard);
+dashboardModal.addEventListener("click", e => { if (e.target === dashboardModal) closeDashboard(); });
 
 // ── Event delegation ─────────────────────────────────────────
 const appEl = document.getElementById("app");

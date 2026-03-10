@@ -395,6 +395,103 @@ async function fetchPreview(url) {
 }
 
 // ── Carousel helpers ─────────────────────────────────────────
+// ── Dashboard ────────────────────────────────────────────────
+export function openDashboard() {
+  const modal = document.getElementById("dashboard-modal");
+  if (!modal) return;
+  renderDashboard();
+  modal.style.display = "flex";
+  modal.setAttribute("aria-hidden", "false");
+}
+
+export function closeDashboard() {
+  const modal = document.getElementById("dashboard-modal");
+  if (!modal) return;
+  modal.style.display = "none";
+  modal.setAttribute("aria-hidden", "true");
+}
+
+function renderDashboard() {
+  const { categories } = getState();
+  const tbody   = document.getElementById("dashboard-tbody");
+  const statsEl = document.getElementById("dashboard-stats");
+  const emptyEl = document.getElementById("dashboard-empty");
+  const tableEl = document.getElementById("dashboard-table");
+  if (!tbody) return;
+
+  // Summary stats
+  const totalItems    = categories.reduce((s, c) => s + c.items.length, 0);
+  const totalOptions  = categories.reduce((s, c) => s + c.items.reduce((si, i) => si + i.options.length, 0), 0);
+  const totalSelected = categories.reduce((s, c) => s + c.items.filter(i => i.selectedOptionId).length, 0);
+  const totalPurchased = categories.reduce((s, c) =>
+    s + c.items.reduce((si, i) => si + i.options.filter(o => o.purchased).length, 0), 0);
+  const totalGaps = totalItems - totalSelected;
+
+  statsEl.innerHTML = `
+    <div class="db-stat"><span class="db-stat-num">${categories.length}</span><span class="db-stat-label">Categories</span></div>
+    <div class="db-stat"><span class="db-stat-num">${totalItems}</span><span class="db-stat-label">Items</span></div>
+    <div class="db-stat"><span class="db-stat-num">${totalOptions}</span><span class="db-stat-label">Options</span></div>
+    <div class="db-stat"><span class="db-stat-num">${totalSelected}</span><span class="db-stat-label">Selected</span></div>
+    <div class="db-stat"><span class="db-stat-num">${totalPurchased}</span><span class="db-stat-label">Purchased</span></div>
+    <div class="db-stat ${totalGaps > 0 ? "db-stat-warn" : "db-stat-good"}">
+      <span class="db-stat-num">${totalGaps}</span>
+      <span class="db-stat-label">${totalGaps === 1 ? "Gap" : "Gaps"}</span>
+    </div>`;
+
+  if (categories.length === 0) {
+    tableEl.style.display = "none";
+    emptyEl.style.display = "block";
+    return;
+  }
+  tableEl.style.display = "";
+  emptyEl.style.display = "none";
+
+  tbody.innerHTML = categories.map(cat => {
+    if (cat.items.length === 0) {
+      return `
+        <tr class="db-row-category">
+          <td class="db-cat-cell" colspan="4">
+            <span class="db-cat-icon">${cat.icon || "📁"}</span>
+            ${cat.name}
+            <span class="db-no-items">no items</span>
+          </td>
+        </tr>`;
+    }
+
+    return cat.items.map((item, idx) => {
+      const selected   = item.selectedOptionId
+        ? item.options.find(o => o.id === item.selectedOptionId)
+        : null;
+      const purchased  = selected?.purchased || false;
+      const isFirst    = idx === 0;
+
+      const catCell = isFirst
+        ? `<td class="db-cat-cell" rowspan="${cat.items.length}">
+             <span class="db-cat-icon">${cat.icon || "📁"}</span>${cat.name}
+           </td>`
+        : "";
+
+      const optionCell = selected
+        ? `<span class="db-option-name">${selected.name}</span>`
+        : `<span class="db-no-selection">—</span>`;
+
+      const purchasedCell = selected
+        ? (purchased
+            ? `<span class="db-purchased-tick">✓</span>`
+            : `<span class="db-purchased-empty">·</span>`)
+        : "";
+
+      return `
+        <tr class="${!selected ? "db-row-gap" : purchased ? "db-row-purchased" : "db-row-selected"}">
+          ${catCell}
+          <td class="db-item-cell">${item.name}</td>
+          <td class="db-option-cell">${optionCell}</td>
+          <td class="db-purchased-cell">${purchasedCell}</td>
+        </tr>`;
+    }).join("");
+  }).join("");
+}
+
 export function scrollToCard(categoryId) {
   const card = document.querySelector(`.card[data-category="${categoryId}"]`);
   if (card) card.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
