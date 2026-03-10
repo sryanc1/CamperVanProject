@@ -1062,31 +1062,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 
 /* Sidebar footer total — above add button */
-.sidebar-total {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 10px;
-  margin-bottom: 10px;
-  background: rgba(74, 222, 128, 0.06);
-  border: 1px solid rgba(74, 222, 128, 0.15);
-  border-radius: var(--radius);
-}
 
-.sidebar-total-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-3);
-}
-
-.sidebar-total-amount {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--green);
-  font-variant-numeric: tabular-nums;
-}
 
 /* Ensure floor plan button doesn't also grab the auto margin
    now that header-total has margin-left: auto */
@@ -1155,21 +1131,17 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 .header-budget-input:focus { color: var(--text-1); }
 
 /* Total pill colour states */
-.header-total[data-status="warn"],
-.sidebar-total[data-status="warn"] {
+.header-total[data-status="warn"] {
   background: rgba(245, 158, 11, 0.1);
   border-color: rgba(245, 158, 11, 0.3);
 }
-.header-total[data-status="warn"] .header-total-amount,
-.sidebar-total[data-status="warn"] .sidebar-total-amount { color: var(--amber); }
+.header-total[data-status="warn"] .header-total-amount { color: var(--amber); }
 
-.header-total[data-status="over"],
-.sidebar-total[data-status="over"] {
+.header-total[data-status="over"] {
   background: rgba(239, 68, 68, 0.1);
   border-color: rgba(239, 68, 68, 0.3);
 }
-.header-total[data-status="over"] .header-total-amount,
-.sidebar-total[data-status="over"] .sidebar-total-amount { color: var(--red); }
+.header-total[data-status="over"] .header-total-amount { color: var(--red); }
 
 @media (max-width: 600px) {
   .header-budget-label { display: none; }  /* just hide label, keep $ + input */

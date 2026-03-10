@@ -59,12 +59,6 @@ function renderTotals() {
     headerEl.querySelector(".header-total-amount").textContent = `$${total.toFixed(2)}`;
   }
 
-  // Sidebar (estimated)
-  const sidebarEl = document.getElementById("sidebar-total");
-  if (sidebarEl) {
-    sidebarEl.style.display = total > 0 ? "flex" : "none";
-    sidebarEl.querySelector(".sidebar-total-amount").textContent = `$${total.toFixed(2)}`;
-  }
 
   // Budget drawer stats — IDs are on the card divs, amounts on the child span
   const set = (id, val) => {
