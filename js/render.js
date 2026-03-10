@@ -9,12 +9,18 @@ const previewCache = {};  // url → { title, domain, favicon } | "loading" | "e
 let   cardObserver = null;
 
 // ── Helpers ──────────────────────────────────────────────────
+function optionEffectiveCost(opt) {
+  // Use actual cost if purchased, otherwise estimated cost × quantity
+  if (opt.purchased && opt.actualCost != null) return opt.actualCost;
+  return opt.cost * (opt.quantity || 1);
+}
+
 function categoryTotal(category) {
   return category.items.reduce((sum, item) => {
     if (!item.selectedOptionId) return sum;
     const opt = item.options.find(o => o.id === item.selectedOptionId);
     if (!opt) return sum;
-    return sum + opt.cost * (opt.quantity || 1);
+    return sum + optionEffectiveCost(opt);
   }, 0);
 }
 
@@ -226,9 +232,7 @@ function itemSelectedCost(item) {
   if (!item.selectedOptionId) return null;
   const opt = item.options.find(o => o.id === item.selectedOptionId);
   if (!opt) return null;
-  const qty   = opt.quantity || 1;
-  const total = opt.cost * qty;
-  return total;
+  return optionEffectiveCost(opt);
 }
 
 function renderItem(category, item) {
