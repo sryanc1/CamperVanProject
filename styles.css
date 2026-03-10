@@ -739,13 +739,14 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 
 .item-notes {
-  font-size: 11px;
-  color: var(--text-3);
+  font-size: 12px;
+  color: var(--text-2);
   line-height: 1.5;
-  padding: 4px 0 6px;
-  border-bottom: 1px solid var(--border-soft);
-  margin-bottom: 4px;
-  font-style: italic;
+  margin: 6px 0 2px 22px;
+  padding: 6px 10px;
+  border-left: 2px solid var(--amber-dim);
+  border-radius: 0 4px 4px 0;
+  background: rgba(245, 158, 11, 0.05);
 }
 
 /* ============================================================
@@ -1285,15 +1286,32 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   margin-left: auto;
 }
 
-/* Line 2: indent to align under name, push controls right */
-.option-line-2 {
+/* Line 2a: pricing — qty, unit cost, actual paid */
+.option-line-2a {
   display: flex;
-  padding-left: 22px;   /* aligns with name start past the radio button */
+  align-items: center;
+  padding-left: 22px;
   gap: 8px;
 }
 
-.option-line-2 .option-cost {
-  margin-right: auto;   /* pushes edit + purchased to the right */
+/* Line 2b: actions — edit button, purchased toggle */
+.option-line-2b {
+  display: flex;
+  align-items: center;
+  padding-left: 22px;
+  gap: 10px;
+}
+
+.purchased-label-text {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.purchased-label input:checked ~ .purchased-tick ~ .purchased-label-text,
+.purchased-label input:checked + .purchased-tick + .purchased-label-text {
+  color: var(--green);
 }
 
 /* ============================================================

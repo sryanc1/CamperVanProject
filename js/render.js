@@ -291,11 +291,14 @@ function renderOption(category, item, option) {
           <button class="btn-danger-sm" data-action="remove-option"
             data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✕</button>
         </div>
-        <!-- Line 2: qty + unit price + edit + purchased -->
-        <div class="option-line option-line-2">
+        <!-- Line 2a: pricing info -->
+        <div class="option-line option-line-2a">
           ${qty}
           <span class="option-cost">$${option.cost.toFixed(2)}</span>
           ${actualBadge}
+        </div>
+        <!-- Line 2b: actions -->
+        <div class="option-line option-line-2b">
           <button class="btn-secondary btn-sm" data-action="edit-option"
             data-category="${category.id}" data-item="${item.id}" data-option="${option.id}">✎ Edit</button>
           <label class="purchased-label" title="Mark as purchased">
@@ -304,6 +307,7 @@ function renderOption(category, item, option) {
               data-action="toggle-purchased"
               data-category="${category.id}" data-item="${item.id}" data-option="${option.id}" />
             <span class="purchased-tick">✓</span>
+            <span class="purchased-label-text">${purchased ? "Purchased" : "Mark purchased"}</span>
           </label>
         </div>
       </div>
