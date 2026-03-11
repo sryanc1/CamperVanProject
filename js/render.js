@@ -432,8 +432,11 @@ function renderDashboard() {
     if (cat.items.length === 0) {
       return `
         <tr class="db-row-category">
-          <td class="db-cat-cell" colspan="4">
+          <td class="db-cat-cell" colspan="1">
             ${cat.name}
+            
+          </td>
+          <td colspan="3">
             <span class="db-no-items">no items</span>
           </td>
         </tr>`;
