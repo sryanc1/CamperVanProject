@@ -1603,32 +1603,27 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
    ============================================================ */
 .dashboard-modal {
   position: fixed;
-  top: 0;
+  top: calc(var(--topbar-h) + var(--header-h));
+  left: 0;
   right: 0;
-  bottom: 0;
-  z-index: 150;
-  width: min(520px, 100vw);
-  display: flex;
-  flex-direction: column;
-  pointer-events: none;
-  transform: translateX(100%);
-  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+  z-index: 75;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 
 .dashboard-modal.open {
-  transform: translateX(0);
-  pointer-events: all;
+  max-height: 75vh;
 }
 
 .dashboard-inner {
-  background: var(--surface);
-  border-left: 1px solid var(--border);
-  width: 100%;
-  height: 100%;
+  height: 75vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: -8px 0 40px rgba(0,0,0,0.5);
 }
 
 .dashboard-header {

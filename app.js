@@ -1,7 +1,7 @@
 // ── app.js ───────────────────────────────────────────────────
 // Entry point. Wires modules together and handles UI events.
 
-import { render, openDashboard, closeDashboard } from "./js/render.js";
+import { render, openDashboard, closeDashboard, renderDashboardPublic } from "./js/render.js";
 import { getState }         from "./js/state.js";
 import { initSync }         from "./js/sync.js";
 import { initModalListeners } from "./js/modal.js";
@@ -46,27 +46,42 @@ const floorplanDrawer = document.getElementById("floorplan-drawer");
 const budgetBtn       = document.getElementById("budget-btn");
 const budgetDrawer    = document.getElementById("budget-drawer");
 
-function toggleDrawer(btn, drawer, otherBtn, otherDrawer) {
+function toggleDrawer(btn, drawer, ...others) {
   const isOpen = drawer.classList.toggle("open");
   btn.classList.toggle("active", isOpen);
   btn.setAttribute("aria-expanded", isOpen);
   drawer.setAttribute("aria-hidden", !isOpen);
-  // Close the other drawer if open
-  if (isOpen && otherDrawer.classList.contains("open")) {
-    otherDrawer.classList.remove("open");
-    otherBtn.classList.remove("active");
-    otherDrawer.setAttribute("aria-hidden", true);
+  // Close all other drawers in pairs [btn, drawer, btn, drawer ...]
+  if (isOpen) {
+    for (let i = 0; i < others.length; i += 2) {
+      const oBtn = others[i], oDrawer = others[i + 1];
+      if (oDrawer?.classList.contains("open")) {
+        oDrawer.classList.remove("open");
+        oBtn.classList.remove("active");
+        oDrawer.setAttribute("aria-hidden", true);
+      }
+    }
   }
 }
 
-floorplanBtn.addEventListener("click", () => toggleDrawer(floorplanBtn, floorplanDrawer, budgetBtn, budgetDrawer));
-budgetBtn.addEventListener("click",    () => toggleDrawer(budgetBtn, budgetDrawer, floorplanBtn, floorplanDrawer));
+floorplanBtn.addEventListener("click", () => toggleDrawer(floorplanBtn, floorplanDrawer, budgetBtn, budgetDrawer, dashboardBtn, dashboardDrawer));
+budgetBtn.addEventListener("click",    () => toggleDrawer(budgetBtn, budgetDrawer, floorplanBtn, floorplanDrawer, dashboardBtn, dashboardDrawer));
 
-const dashboardBtn   = document.getElementById("dashboard-btn");
-const dashboardClose = document.getElementById("dashboard-close");
+const dashboardDrawer = document.getElementById("dashboard-modal");
+const dashboardBtn    = document.getElementById("dashboard-btn");
+const dashboardClose  = document.getElementById("dashboard-close");
 
-dashboardBtn.addEventListener("click", openDashboard);
-dashboardClose.addEventListener("click", closeDashboard);
+dashboardBtn.addEventListener("click", () =>
+  toggleDrawer(dashboardBtn, dashboardDrawer, floorplanBtn, floorplanDrawer, budgetBtn, budgetDrawer));
+
+// Re-render dashboard content each time it opens so data is fresh
+document.getElementById("dashboard-modal").addEventListener("transitionend", () => {
+  if (dashboardDrawer.classList.contains("open")) renderDashboardPublic();
+});
+dashboardClose.addEventListener("click", () => {
+  dashboardDrawer.classList.remove("open");
+  dashboardBtn.classList.remove("active");
+});
 
 // ── Event delegation ─────────────────────────────────────────
 const appEl = document.getElementById("app");

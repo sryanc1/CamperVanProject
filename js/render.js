@@ -400,8 +400,7 @@ export function openDashboard() {
   const modal = document.getElementById("dashboard-modal");
   if (!modal) return;
   renderDashboard();
-  modal.style.display = "";   // ensure visible
-  requestAnimationFrame(() => modal.classList.add("open"));
+  modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
 }
 
@@ -411,6 +410,8 @@ export function closeDashboard() {
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
 }
+
+export function renderDashboardPublic() { renderDashboard(); }
 
 function renderDashboard() {
   const { categories } = getState();
