@@ -1258,6 +1258,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   display: flex;
   gap: 8px;
   justify-content: space-between;
+  margin: 5px 0px 5px 0px;
 }
 
 /* Line 1 specifics */
