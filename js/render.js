@@ -400,14 +400,15 @@ export function openDashboard() {
   const modal = document.getElementById("dashboard-modal");
   if (!modal) return;
   renderDashboard();
-  modal.style.display = "flex";
+  modal.style.display = "";   // ensure visible
+  requestAnimationFrame(() => modal.classList.add("open"));
   modal.setAttribute("aria-hidden", "false");
 }
 
 export function closeDashboard() {
   const modal = document.getElementById("dashboard-modal");
   if (!modal) return;
-  modal.style.display = "none";
+  modal.classList.remove("open");
   modal.setAttribute("aria-hidden", "true");
 }
 
@@ -451,7 +452,6 @@ function renderDashboard() {
       return `
         <tr class="db-row-category">
           <td class="db-cat-cell" colspan="4">
-            <span class="db-cat-icon">${cat.icon || "📁"}</span>
             ${cat.name}
             <span class="db-no-items">no items</span>
           </td>
@@ -466,9 +466,7 @@ function renderDashboard() {
       const isFirst    = idx === 0;
 
       const catCell = isFirst
-        ? `<td class="db-cat-cell" rowspan="${cat.items.length}">
-             <span class="db-cat-icon">${cat.icon || "📁"}</span>${cat.name}
-           </td>`
+        ? `<td class="db-cat-cell" rowspan="${cat.items.length}">${cat.name}</td>`
         : "";
 
       const optionCell = selected

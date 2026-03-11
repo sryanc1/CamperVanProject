@@ -671,13 +671,13 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   z-index: 1;
   background: rgba(28, 26, 21, 0.2);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 48px 44px;
   max-width: 380px;
   text-align: center;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.7);
-  animation: card-up 0.5s cubic-bezier(0.16,1,0.3,1);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+  animation: card-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes card-up {
@@ -1599,31 +1599,36 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 
 /* ============================================================
-   DASHBOARD MODAL
+   DASHBOARD DRAWER
    ============================================================ */
 .dashboard-modal {
   position: fixed;
-  inset: 0;
-  z-index: 200;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 150;
+  width: min(520px, 100vw);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(4px);
-  padding: 16px;
-  box-sizing: border-box;
+  flex-direction: column;
+  pointer-events: none;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+
+.dashboard-modal.open {
+  transform: translateX(0);
+  pointer-events: all;
 }
 
 .dashboard-inner {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  border-left: 1px solid var(--border);
   width: 100%;
-  max-width: 760px;
-  max-height: 90vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.5);
 }
 
 .dashboard-header {
@@ -1641,10 +1646,6 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   gap: 14px;
 }
 
-.dashboard-icon {
-  font-size: 32px;
-  line-height: 1;
-}
 
 .dashboard-heading {
   font-size: 18px;
@@ -1761,7 +1762,6 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   border-right: 1px solid var(--border);
 }
 
-.db-cat-icon { margin-right: 6px; }
 
 .db-item-cell { color: var(--text-2); }
 
@@ -1790,21 +1790,10 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   font-style: italic;
 }
 
-/* Footer */
-.dashboard-footer {
-  padding: 14px 24px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: flex-end;
-  flex-shrink: 0;
-}
-
 @media (max-width: 600px) {
   .dashboard-header { padding: 14px 16px 12px; }
   .dashboard-stats  { padding: 10px 16px; }
   .dashboard-table-wrap { padding: 0 12px; }
-  .dashboard-footer { padding: 12px 16px; }
   .dashboard-table  { font-size: 12px; }
-  .dashboard-icon   { font-size: 24px; }
   .dashboard-heading { font-size: 15px; }
 }
