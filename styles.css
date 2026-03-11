@@ -885,7 +885,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 
 .floorplan-drawer.open {
-  max-height: 55vh;   /* generous but leaves carousel visible below */
+  max-height: 100vh;   /* generous but leaves carousel visible below */
 }
 
 .floorplan-drawer-inner {
@@ -904,11 +904,9 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 
 .floorplan-img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
   display: block;
-  filter: drop-shadow(0 4px 24px rgba(0,0,0,0.5));
+  margin: 0 auto;
+  width: 50%; 
 }
 
 /* Hide image, show message when src fails */
@@ -1626,7 +1624,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
 }
@@ -1649,7 +1647,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   color: var(--text-3);
   margin: 0;
   font-style: italic;
-  font-size: 1rem;
+  font-size: 1.25rem;
 }
 
 .dashboard-close {
