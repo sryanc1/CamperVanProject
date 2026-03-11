@@ -2,7 +2,7 @@
    VARIABLES & RESET
    ============================================================ */
 :root {
-  --bg:           #111009;
+  --bg:           #211f11;
   --surface:      #1c1a15;
   --surface-2:    #252219;
   --surface-3:    #2e2a20;
@@ -12,11 +12,11 @@
   --amber-dim:    #b45309;
   --amber-glow:   rgba(245,158,11,0.12);
   --red:          #ef4444;
-  --red-dim:      #991b1b;
+  --red-dim:      #ce6d6d;
   --green:        #4ade80;
   --text-1:       #f5f0e8;
   --text-2:       #a8a29e;
-  --text-3:       #57534e;
+  --text-3:       #dac1a4;
   --font-head:    'Barlow Condensed', sans-serif;
   --font-body:    'Barlow', sans-serif;
   --radius:       10px;

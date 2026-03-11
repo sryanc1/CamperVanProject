@@ -37,7 +37,8 @@ function renderAuthBar(user) {
       gate.innerHTML = `
         <div class="sign-in-bg"></div>
         <div class="sign-in-card">
-          <h2 class="sign-in-title">Van Build Planner</h2>
+          <h2 class="sign-in-title">#Van Life</h2>
+          <p>Plan, Budget, Build</p>
           <button class="btn-google-large" id="sign-in-btn-gate">
             ${GOOGLE_SVG} Sign in with Google
           </button>

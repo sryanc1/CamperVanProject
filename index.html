@@ -20,16 +20,8 @@
       <span></span><span></span><span></span>
     </button>
     <div class="page-brand">
-      <span class="page-brand-icon">🚐</span>
       <span class="page-brand-name">Van Build Planner</span>
     </div>
-    <button id="dashboard-btn" class="btn-floorplan" aria-label="Open build overview">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-      </svg>
-      <span class="btn-floorplan-label">Overview</span>
-    </button>
     <div id="header-total" class="header-total" style="display:none">
       <span class="header-total-label">Current Estimate</span>
       <span class="header-total-amount">$0.00</span>
@@ -39,6 +31,13 @@
       <span class="header-budget-prefix">$</span>
       <input id="budget-input" class="header-budget-input" type="number" min="0" step="100" placeholder="0" />
     </div>
+    <button id="dashboard-btn" class="btn-floorplan" aria-label="Open build overview">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+      </svg>
+      <span class="btn-floorplan-label">Overview</span>
+    </button>
     <button id="budget-btn" class="btn-floorplan" aria-label="Toggle budget overview">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
@@ -150,8 +149,8 @@
       <div class="dashboard-header">
         <div class="dashboard-title">
           <div>
-            <h2 class="dashboard-heading">Van Build Planner</h2>
-            <p class="dashboard-sub">Your rolling home, planned to the last bolt.</p>
+            <h2 class="dashboard-heading">The Biuld So Far</h2>
+            <p class="dashboard-sub">Categorise the build into components. Add items to buy for each components. Add purchase options to the items you need to buy.</p>
           </div>
         </div>
         <button class="dashboard-close" id="dashboard-close" aria-label="Close">✕</button>
