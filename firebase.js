@@ -1,7 +1,7 @@
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
-  collection, addDoc, query, where, getDocs, onSnapshot, serverTimestamp, arrayUnion
+  collection, addDoc, query, where, getDocs, onSnapshot, serverTimestamp, arrayUnion, arrayRemove
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
@@ -40,5 +40,5 @@ export {
   doc, getDoc, setDoc, updateDoc, deleteDoc,
   collection, addDoc, query, where, getDocs, onSnapshot, serverTimestamp,
   // Path helpers
-  buildDocRef, userDocRef, projectsCol, projectRef, inviteRef, arrayUnion,
+  buildDocRef, userDocRef, projectsCol, projectRef, inviteRef, arrayUnion, arrayRemove,
 };

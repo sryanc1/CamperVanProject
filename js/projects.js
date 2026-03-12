@@ -8,6 +8,7 @@ import {
 } from "../firebase.js";
 import { getUserProjects, getPendingUsers, approveUser, rejectUser, addProjectToUser } from "./users.js";
 import { loadApp } from "./auth.js";
+import { createInvite } from "./invites.js";
 
 let _currentUser    = null;
 let _currentUserDoc = null;
@@ -58,14 +59,22 @@ export async function showProjectPicker(user, userDoc) {
     return;
   }
 
-  listEl.innerHTML = projects.map(p => `
-    <div class="picker-project" data-project-id="${p.id}">
-      <div class="picker-project-info">
-        <span class="picker-project-name">${p.name}</span>
-        <span class="picker-project-role ${p.members[user.uid]}">${p.members[user.uid]}</span>
-      </div>
-      <button class="btn-primary btn-sm picker-open-btn" data-project-id="${p.id}">Open</button>
-    </div>`).join("");
+  listEl.innerHTML = projects.map(p => {
+    const role    = p.members[user.uid];
+    const isOwner = role === "owner";
+    return `
+      <div class="picker-project" data-project-id="${p.id}">
+        <div class="picker-project-info">
+          <span class="picker-project-name">${p.name}</span>
+          <span class="picker-project-role ${role}">${role}</span>
+        </div>
+        <div class="picker-project-actions">
+          ${isOwner ? `<button class="btn-secondary btn-sm invite-btn"
+            data-project-id="${p.id}" data-project-name="${p.name}">✉ Invite</button>` : ""}
+          <button class="btn-primary btn-sm picker-open-btn" data-project-id="${p.id}">Open</button>
+        </div>
+      </div>`;
+  }).join("");
 
   listEl.querySelectorAll(".picker-open-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
@@ -74,6 +83,12 @@ export async function showProjectPicker(user, userDoc) {
       removeOverlay();
       loadApp(user, userDoc, project);
     });
+  });
+
+  listEl.querySelectorAll(".invite-btn").forEach(btn => {
+    btn.addEventListener("click", () =>
+      showInviteForm(user, userDoc, btn.dataset.projectId, btn.dataset.projectName)
+    );
   });
 }
 
@@ -195,6 +210,86 @@ async function renderAdminBody(user, userDoc) {
       await rejectUser(btn.dataset.uid);
       await renderAdminBody(user, userDoc);
     });
+  });
+}
+
+// ── Invite form ──────────────────────────────────────────────
+function showInviteForm(user, userDoc, projectId, projectName) {
+  removeOverlay();
+  const overlay = createOverlay("invite-overlay");
+  overlay.innerHTML = `
+    <div class="picker-card">
+      <div class="picker-header">
+        <h2 class="picker-title">✉ Invite Collaborator</h2>
+      </div>
+      <div class="picker-body">
+        <p class="picker-hint" style="margin-bottom:16px">
+          Inviting to: <strong>${projectName}</strong>
+        </p>
+        <label class="modal-label">Email address
+          <input type="email" id="invite-email-input" class="modal-input"
+            placeholder="collaborator@email.com" />
+        </label>
+        <p class="picker-hint">
+          They must sign in with this exact Google account. The link expires in 7 days or after first use.
+        </p>
+        <div id="invite-result" style="display:none"></div>
+      </div>
+      <div class="picker-footer">
+        <button class="btn-secondary" id="invite-back-btn">← Back</button>
+        <button class="btn-primary" id="invite-send-btn">Generate Link</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  document.getElementById("invite-back-btn")
+    .addEventListener("click", () => showProjectPicker(user, userDoc));
+
+  document.getElementById("invite-send-btn").addEventListener("click", async () => {
+    const email  = document.getElementById("invite-email-input").value.trim();
+    const result = document.getElementById("invite-result");
+    const btn    = document.getElementById("invite-send-btn");
+
+    if (!email || !email.includes("@")) {
+      result.innerHTML = `<p class="picker-error" style="display:block">Please enter a valid email address.</p>`;
+      result.style.display = "block";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Generating…";
+
+    try {
+      const token   = await createInvite(projectId, projectName, user.displayName, email);
+      const baseUrl = window.location.origin + window.location.pathname;
+      const link    = `${baseUrl}?invite=${token}`;
+
+      result.style.display = "block";
+      result.innerHTML = `
+        <div class="invite-result-box">
+          <p class="invite-result-label">Share this link with <strong>${email}</strong>:</p>
+          <div class="invite-link-row">
+            <input class="modal-input invite-link-input" readonly value="${link}" id="invite-link-val" />
+            <button class="btn-secondary btn-sm" id="copy-invite-btn">Copy</button>
+          </div>
+          <p class="picker-hint">Single-use · expires in 7 days · Google account must match email above</p>
+        </div>`;
+
+      document.getElementById("copy-invite-btn").addEventListener("click", () => {
+        navigator.clipboard.writeText(link);
+        document.getElementById("copy-invite-btn").textContent = "Copied ✓";
+      });
+
+      // Select the link text for easy manual copy
+      document.getElementById("invite-link-val").select();
+
+      btn.style.display = "none";
+    } catch (err) {
+      result.style.display = "block";
+      result.innerHTML = `<p class="picker-error" style="display:block">Failed to generate invite. Please try again.</p>`;
+      btn.disabled = false;
+      btn.textContent = "Generate Link";
+    }
   });
 }
 

@@ -2011,3 +2011,45 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   gap: 8px;
   flex-shrink: 0;
 }
+
+/* ============================================================
+   INVITE SYSTEM
+   ============================================================ */
+.picker-project-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.invite-result-box {
+  margin-top: 14px;
+  padding: 14px;
+  background: rgba(74, 222, 128, 0.06);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.invite-result-label {
+  font-size: 13px;
+  color: var(--text-2);
+  margin: 0;
+}
+
+.invite-link-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.invite-link-input {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

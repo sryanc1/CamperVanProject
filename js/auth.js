@@ -7,6 +7,7 @@ import { openDashboard }                             from "./render.js";
 import { updateState }                               from "./state.js";
 import { setCurrentUser, startListening, stopListening, setCurrentProject } from "./sync.js";
 import { showProjectPicker }                         from "./projects.js";
+import { getInviteTokenFromURL, acceptInvite, clearInviteFromURL } from "./invites.js";
 
 const authEl = document.getElementById("auth-bar");
 const appEl  = document.getElementById("app");
@@ -96,6 +97,49 @@ export function loadApp(user, userDoc, project) {
   setTimeout(openDashboard, 800);
 }
 
+// ── Invite accept screen ─────────────────────────────────────
+async function showInviteAcceptScreen(user, userDoc, token) {
+  document.getElementById("sign-in-gate")?.remove();
+  document.getElementById("pending-gate")?.remove();
+
+  const gate = document.createElement("div");
+  gate.id = "invite-gate";
+  gate.innerHTML = `
+    <div class="sign-in-bg"></div>
+    <div class="sign-in-card">
+      <div class="pending-icon">🔗</div>
+      <h2 class="sign-in-title">Joining Project…</h2>
+      <p class="pending-msg">Please wait while we verify your invite.</p>
+    </div>`;
+  document.body.appendChild(gate);
+
+  const result = await acceptInvite(token, user);
+  clearInviteFromURL();
+
+  const card = gate.querySelector(".sign-in-card");
+  if (result.ok) {
+    card.innerHTML = `
+      <div class="pending-icon">✅</div>
+      <h2 class="sign-in-title">You're in!</h2>
+      <p class="pending-msg">You've been added to <strong>${result.projectName}</strong>.</p>
+      <button class="btn-primary" id="invite-continue-btn">Open Project</button>`;
+    document.getElementById("invite-continue-btn").addEventListener("click", () => {
+      gate.remove();
+      showProjectPicker(user, userDoc);
+    });
+  } else {
+    card.innerHTML = `
+      <div class="pending-icon">⚠️</div>
+      <h2 class="sign-in-title">Invite Invalid</h2>
+      <p class="pending-msg">${result.reason}</p>
+      <button class="btn-primary" id="invite-continue-btn">Go to My Projects</button>`;
+    document.getElementById("invite-continue-btn").addEventListener("click", () => {
+      gate.remove();
+      showProjectPicker(user, userDoc);
+    });
+  }
+}
+
 // ── Main auth listener ────────────────────────────────────────
 export function initAuth() {
   onAuthStateChanged(auth, async user => {
@@ -116,6 +160,13 @@ export function initAuth() {
     if (userDoc.status !== "approved") {
       appEl.style.display = "none";
       showPendingGate(user);
+      return;
+    }
+
+    // Check for invite token in URL first
+    const inviteToken = getInviteTokenFromURL();
+    if (inviteToken) {
+      showInviteAcceptScreen(user, userDoc, inviteToken);
       return;
     }
 

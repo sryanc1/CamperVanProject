@@ -2,8 +2,9 @@
 // User document management — create, read, status checks.
 
 import {
-  db, getDoc, setDoc, updateDoc, arrayUnion,
-  userDocRef, projectsCol, query, where, getDocs,
+  db, getDoc, setDoc, updateDoc, deleteDoc, collection,
+  arrayUnion, arrayRemove,
+  userDocRef, projectsCol, projectRef, query, where, getDocs,
 } from "../firebase.js";
 
 // Create a user doc on first login (status: pending)
@@ -33,7 +34,7 @@ export async function getUserDoc(uid) {
 // Admin: fetch all pending users
 export async function getPendingUsers() {
   const col   = query(
-    await import("../firebase.js").then(m => m.collection(db, "users")),
+    collection(db, "users"),
     where("status", "==", "pending")
   );
   const snap  = await getDocs(col);
@@ -56,7 +57,6 @@ export async function approveUser(uid) {
 
 // Admin: reject (delete) a user
 export async function rejectUser(uid) {
-  const { deleteDoc } = await import("../firebase.js");
   await deleteDoc(userDocRef(uid));
 }
 
@@ -69,10 +69,17 @@ export async function getUserProjects(uid) {
     console.log("[getUserProjects] uid:", uid, "projectIds:", projectIds);
     if (projectIds.length === 0) return [];
 
-    const { projectRef } = await import("../firebase.js");
     const results = await Promise.all(
       projectIds.map(id => getDoc(projectRef(id)))
     );
+
+    // Prune stale project IDs (deleted directly in Firestore console)
+    const stale = results.filter(s => !s.exists()).map(s => s.id);
+    if (stale.length > 0) {
+      console.warn("[getUserProjects] pruning stale project IDs:", stale);
+      await updateDoc(userDocRef(uid), { projects: arrayRemove(...stale) });
+    }
+
     return results
       .filter(snap => snap.exists())
       .map(snap => ({ id: snap.id, ...snap.data() }));
