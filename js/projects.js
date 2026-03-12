@@ -69,6 +69,10 @@ export async function showProjectPicker(user, userDoc) {
           <span class="picker-project-role ${role}">${role}</span>
         </div>
         <div class="picker-project-actions">
+          <button class="btn-secondary btn-sm manage-btn"
+            data-project-id="${p.id}"
+            data-project-name="${p.name}"
+            data-role="${role}">⚙</button>
           ${isOwner ? `<button class="btn-secondary btn-sm invite-btn"
             data-project-id="${p.id}" data-project-name="${p.name}">✉ Invite</button>` : ""}
           <button class="btn-primary btn-sm picker-open-btn" data-project-id="${p.id}">Open</button>
@@ -88,6 +92,13 @@ export async function showProjectPicker(user, userDoc) {
   listEl.querySelectorAll(".invite-btn").forEach(btn => {
     btn.addEventListener("click", () =>
       showInviteForm(user, userDoc, btn.dataset.projectId, btn.dataset.projectName)
+    );
+  });
+
+  listEl.querySelectorAll(".manage-btn").forEach(btn => {
+    btn.addEventListener("click", () =>
+      showManageProject(user, userDoc,
+        btn.dataset.projectId, btn.dataset.projectName, btn.dataset.role, projects)
     );
   });
 }
@@ -213,6 +224,153 @@ async function renderAdminBody(user, userDoc) {
   });
 }
 
+// ── Manage project ───────────────────────────────────────────
+async function showManageProject(user, userDoc, projectId, projectName, role, projects) {
+  removeOverlay();
+  const isOwner  = role === "owner";
+  const overlay  = createOverlay("manage-overlay");
+
+  // Build member list for owners
+  let memberRows = "";
+  if (isOwner) {
+    const snap = await getDoc(projectRef(projectId));
+    const members = snap.data()?.members || {};
+    const otherMembers = Object.entries(members).filter(([uid]) => uid !== user.uid);
+    // Fetch names from user docs
+    const memberProfiles = await Promise.all(
+      otherMembers.map(async ([uid, r]) => {
+        const uSnap = await getDoc(userDocRef(uid));
+        const profile = uSnap.exists() ? uSnap.data() : {};
+        return { uid, role: r, name: profile.name || "Unknown", email: profile.email || uid };
+      })
+    );
+    memberRows = memberProfiles.map(({ uid, role: r, name, email }) => `
+        <div class="admin-user-row">
+          <div class="admin-user-info">
+            <span class="admin-user-name">${name}</span>
+            <span class="admin-user-email">${email}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="picker-project-role ${r}">${r}</span>
+            <button class="btn-danger-sm remove-member-btn" data-uid="${uid}">✕ Remove</button>
+          </div>
+        </div>`).join("");
+    if (!memberRows) memberRows = `<p class="picker-empty" style="padding:8px 0">No other members yet.</p>`;
+  }
+
+  overlay.innerHTML = `
+    <div class="picker-card">
+      <div class="picker-header">
+        <h2 class="picker-title">⚙ ${projectName}</h2>
+      </div>
+      <div class="picker-body" style="display:flex;flex-direction:column;gap:16px">
+        ${isOwner ? `
+          <div>
+            <p class="admin-section-title">Rename Project</p>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="rename-input" class="modal-input"
+                value="${projectName}" maxlength="60" style="flex:1" />
+              <button class="btn-secondary btn-sm" id="rename-btn">Save</button>
+            </div>
+            <p id="rename-msg" style="font-size:12px;color:var(--green);display:none;margin-top:6px">Renamed ✓</p>
+          </div>
+          <div>
+            <p class="admin-section-title">Members</p>
+            <div id="member-list">${memberRows}</div>
+          </div>
+          <div>
+            <p class="admin-section-title" style="color:var(--red)">Danger Zone</p>
+            <button class="btn-danger-sm" id="delete-project-btn" style="padding:8px 14px;font-size:13px">
+              🗑 Delete Project
+            </button>
+          </div>` : `
+          <div>
+            <p class="admin-section-title" style="color:var(--red)">Leave Project</p>
+            <p class="picker-hint">You'll lose access and will need a new invite to rejoin.</p>
+            <button class="btn-danger-sm" id="leave-project-btn" style="padding:8px 14px;font-size:13px;margin-top:8px">
+              👋 Leave Project
+            </button>
+          </div>`}
+        <p id="manage-error" class="picker-error" style="display:none"></p>
+      </div>
+      <div class="picker-footer">
+        <button class="btn-secondary" id="manage-back-btn">← Back</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  document.getElementById("manage-back-btn")
+    .addEventListener("click", () => showProjectPicker(user, userDoc));
+
+  if (isOwner) {
+    // Rename
+    document.getElementById("rename-btn").addEventListener("click", async () => {
+      const name = document.getElementById("rename-input").value.trim();
+      if (!name) return;
+      await updateDoc(projectRef(projectId), { name });
+      document.getElementById("rename-msg").style.display = "block";
+      setTimeout(() => document.getElementById("rename-msg").style.display = "none", 2000);
+    });
+
+    // Remove members
+    overlay.querySelectorAll(".remove-member-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Remove this member from the project?")) return;
+        const uid = btn.dataset.uid;
+        // Remove from project members map
+        const update = {};
+        update[`members.${uid}`] = deleteField();
+        await updateDoc(projectRef(projectId), update);
+        // Remove project from their user doc
+        await updateDoc(userDocRef(uid), { projects: arrayRemove(projectId) });
+        btn.closest(".admin-user-row").remove();
+      });
+    });
+
+    // Delete project
+    document.getElementById("delete-project-btn").addEventListener("click", async () => {
+      if (!confirm(`Permanently delete "${projectName}"? This cannot be undone.`)) return;
+      try {
+        // Remove project ID from all members' user docs
+        const snap    = await getDoc(projectRef(projectId));
+        const members = snap.data()?.members || {};
+        await Promise.all(
+          Object.keys(members).map(uid =>
+            updateDoc(userDocRef(uid), { projects: arrayRemove(projectId) })
+          )
+        );
+        // Delete project doc and build doc
+        await Promise.all([
+          deleteDoc(projectRef(projectId)),
+          deleteDoc(buildDocRef(projectId)),
+        ]);
+        removeOverlay();
+        showProjectPicker(user, userDoc);
+      } catch (err) {
+        document.getElementById("manage-error").textContent = "Delete failed. Please try again.";
+        document.getElementById("manage-error").style.display = "block";
+      }
+    });
+
+  } else {
+    // Leave project
+    document.getElementById("leave-project-btn").addEventListener("click", async () => {
+      if (!confirm(`Leave "${projectName}"?`)) return;
+      try {
+        const update = {};
+        update[`members.${user.uid}`] = deleteField();
+        await updateDoc(projectRef(projectId), update);
+        await updateDoc(userDocRef(user.uid), { projects: arrayRemove(projectId) });
+        removeOverlay();
+        showProjectPicker(user, userDoc);
+      } catch (err) {
+        document.getElementById("manage-error").textContent = "Failed to leave project. Please try again.";
+        document.getElementById("manage-error").style.display = "block";
+      }
+    });
+  }
+}
+
 // ── Invite form ──────────────────────────────────────────────
 function showInviteForm(user, userDoc, projectId, projectName) {
   removeOverlay();
@@ -303,7 +461,7 @@ function createOverlay(id) {
 
 export function removeAllOverlays() {
   document.querySelectorAll(
-    "#project-picker, #new-project-overlay, #admin-panel-overlay, #invite-overlay"
+    "#project-picker, #new-project-overlay, #admin-panel-overlay, #invite-overlay, #manage-overlay"
   ).forEach(el => el.remove());
 }
 

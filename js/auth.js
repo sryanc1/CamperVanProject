@@ -36,7 +36,11 @@ function renderAuthBar(user, userDoc) {
   document.getElementById("sign-out-btn")
     .addEventListener("click", () => signOut(auth));
   document.getElementById("switch-project-btn")
-    .addEventListener("click", () => showProjectPicker(user, userDoc));
+    .addEventListener("click", () => {
+      stopListening();
+      appEl.style.display = "none";
+      showProjectPicker(user, userDoc);
+    });
 }
 
 // ── Sign-in gate ──────────────────────────────────────────────
