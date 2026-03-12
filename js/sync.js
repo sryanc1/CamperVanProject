@@ -1,12 +1,14 @@
 // ── sync.js ──────────────────────────────────────────────────
 // Firestore read/write and sync status indicator.
 
-import { PROJECT_DOC, onSnapshot, setDoc } from "../firebase.js";
+import { buildDocRef, onSnapshot, setDoc } from "../firebase.js";
 import { getState, updateState } from "./state.js";
 import { checkNotesConflicts } from "./render.js";
 
-export let currentUser = null;
-export const setCurrentUser = u => { currentUser = u; };
+export let currentUser      = null;
+export let currentProjectId = null;
+export const setCurrentUser    = u  => { currentUser      = u;  };
+export const setCurrentProject = id => { currentProjectId = id; };
 
 let saveTimer     = null;
 let unsubSnapshot = null;
@@ -36,7 +38,7 @@ export function scheduleWrite() {
     if (!currentUser) return;
     setSyncStatus("saving");
     const { categories, budget } = getState();
-    setDoc(PROJECT_DOC, { categories, budget: budget || 0 })
+    setDoc(buildDocRef(currentProjectId), { categories, budget: budget || 0 })
       .then(() => setSyncStatus("saved"))
       .catch(err => { console.error("Write failed:", err); setSyncStatus("error"); });
   }, 800);
@@ -44,7 +46,7 @@ export function scheduleWrite() {
 
 export function startListening() {
   if (unsubSnapshot) unsubSnapshot();
-  unsubSnapshot = onSnapshot(PROJECT_DOC, snap => {
+  unsubSnapshot = onSnapshot(buildDocRef(currentProjectId), snap => {
     const incoming = snap.exists() ? snap.data() : { categories: [], budget: 0 };
     checkNotesConflicts(incoming.categories || []);
     updateState(incoming);

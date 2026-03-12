@@ -1,8 +1,11 @@
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, onSnapshot }
-                           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
-                           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
+  collection, addDoc, query, where, getDocs, onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyA9zF7mTesrlAuNRfm8HvKvnAW72v2j6UE",
@@ -19,11 +22,23 @@ const db       = getFirestore(app);
 const auth     = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ── Shared project document ──────────────────────────────────
-const PROJECT_DOC = doc(db, "project", "main");
-
-// Sign in / out helpers
-const signIn  = () => signInWithPopup(auth, provider);
+const signIn   = () => signInWithPopup(auth, provider);
 const signOut_ = () => signOut(auth);
 
-export { db, auth, PROJECT_DOC, signIn, signOut_ as signOut, onAuthStateChanged, onSnapshot, setDoc };
+// ── Firestore path helpers ───────────────────────────────────
+// Build data now lives at builds/{projectId}/data/main
+const buildDocRef = (projectId) => doc(db, "builds", projectId, "data", "main");
+const userDocRef  = (uid)       => doc(db, "users", uid);
+const projectsCol = ()          => collection(db, "projects");
+const projectRef  = (id)        => doc(db, "projects", id);
+const inviteRef   = (token)     => doc(db, "invites", token);
+
+export {
+  db, auth,
+  signIn, signOut_ as signOut, onAuthStateChanged,
+  // Firestore operations
+  doc, getDoc, setDoc, updateDoc, deleteDoc,
+  collection, addDoc, query, where, getDocs, onSnapshot, serverTimestamp,
+  // Path helpers
+  buildDocRef, userDocRef, projectsCol, projectRef, inviteRef,
+};

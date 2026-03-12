@@ -1786,3 +1786,228 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   .dashboard-table  { font-size: 1rem; }
   .dashboard-heading { font-size: 2rem; }
 }
+
+/* ============================================================
+   PROJECT PICKER / ADMIN PANEL OVERLAY
+   ============================================================ */
+.picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
+  padding: 16px;
+  box-sizing: border-box;
+  animation: fade-in 0.2s ease;
+}
+
+.picker-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  animation: card-up 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+
+.picker-card-wide { max-width: 640px; }
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.picker-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin: 0;
+}
+
+.picker-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.picker-list {
+  padding: 12px 8px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.picker-loading {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-3);
+  font-style: italic;
+}
+
+.picker-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--text-3);
+  font-style: italic;
+}
+
+.picker-hint {
+  font-size: 12px;
+  color: var(--text-3);
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
+.picker-error {
+  font-size: 13px;
+  color: var(--red);
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  background: rgba(239,68,68,0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(239,68,68,0.2);
+}
+
+.picker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* Project rows */
+.picker-project {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+
+.picker-project:hover { border-color: var(--amber-dim); }
+
+.picker-project-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.picker-project-name {
+  font-weight: 600;
+  color: var(--text-1);
+  font-size: 14px;
+}
+
+.picker-project-role {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.picker-project-role.owner  { color: var(--amber); background: rgba(245,158,11,0.1); }
+.picker-project-role.editor { color: var(--green);  background: rgba(74,222,128,0.1); }
+
+/* Auth bar additions */
+.auth-admin-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--amber);
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+/* Pending screen */
+.pending-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.pending-msg {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* Admin panel */
+.admin-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-3);
+  margin: 0 0 14px;
+}
+
+.admin-user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  gap: 12px;
+}
+
+.admin-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-user-name {
+  font-weight: 600;
+  color: var(--text-1);
+  font-size: 14px;
+}
+
+.admin-user-email {
+  font-size: 12px;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-user-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}

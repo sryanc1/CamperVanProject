@@ -1,11 +1,12 @@
 // ── auth.js ──────────────────────────────────────────────────
-// Google sign-in gate and auth bar.
+// Auth gate, user status routing, auth bar.
 
 import { auth, signIn, signOut, onAuthStateChanged } from "../firebase.js";
-import { openDashboard } from "./render.js";
-import { updateState }    from "./state.js";
-import { render }         from "./render.js";
-import { setCurrentUser, startListening, stopListening } from "./sync.js";
+import { ensureUserDoc }                             from "./users.js";
+import { openDashboard }                             from "./render.js";
+import { updateState }                               from "./state.js";
+import { setCurrentUser, startListening, stopListening, setCurrentProject } from "./sync.js";
+import { showProjectPicker }                         from "./projects.js";
 
 const authEl = document.getElementById("auth-bar");
 const appEl  = document.getElementById("app");
@@ -17,53 +18,108 @@ const GOOGLE_SVG = `<svg width="20" height="20" viewBox="0 0 48 48" style="flex-
   <path fill="#34A853" d="M24 47c5.6 0 10.3-1.8 13.7-5L30.3 36.3c-1.9 1.3-4.3 2.1-6.8 2.1-6.3 0-11.6-4.2-13.5-10l-8.1 6.2C5.9 41.6 14.3 47 24 47z"/>
 </svg>`;
 
-function renderAuthBar(user) {
-  if (!authEl) return;
-  if (user) {
-    document.getElementById("sign-in-gate")?.remove();
-    authEl.innerHTML = `
-      <div class="auth-user">
-        <img class="auth-avatar" src="${user.photoURL || ""}" alt="${user.displayName}" />
-        <span class="auth-name">${user.displayName}</span>
-        <span id="sync-status" class="sync-status">Live</span>
-        <button class="btn-secondary btn-sm" id="sign-out-btn">Sign out</button>
-      </div>`;
-    document.getElementById("sign-out-btn").addEventListener("click", () => signOut(auth));
-  } else {
-    authEl.innerHTML = "";
-    if (!document.getElementById("sign-in-gate")) {
-      const gate = document.createElement("div");
-      gate.id = "sign-in-gate";
-      gate.innerHTML = `
-        <div class="sign-in-bg"></div>
-        <div class="sign-in-card">
-          <h2 class="sign-in-title">#Van Life</h2>
-          <p class="sign-in-p">Plan, Budget, Build</p>
-          <button class="btn-google-large" id="sign-in-btn-gate">
-            ${GOOGLE_SVG} Sign in with Google
-          </button>
-        </div>`;
-      document.body.appendChild(gate);
-      document.getElementById("sign-in-btn-gate")
-        .addEventListener("click", () => signIn().catch(err => console.error("Sign-in failed:", err)));
-    }
-  }
+// ── Auth bar (top strip) ──────────────────────────────────────
+function renderAuthBar(user, userDoc) {
+  if (!authEl || !user) { if (authEl) authEl.innerHTML = ""; return; }
+  const adminBadge = userDoc?.isAdmin
+    ? `<span class="auth-admin-badge">Admin</span>` : "";
+  authEl.innerHTML = `
+    <div class="auth-user">
+      <img class="auth-avatar" src="${user.photoURL || ""}" alt="${user.displayName}" />
+      <span class="auth-name">${user.displayName}</span>
+      ${adminBadge}
+      <span id="sync-status" class="sync-status">Live</span>
+      <button class="btn-secondary btn-sm" id="switch-project-btn">⇄ Projects</button>
+      <button class="btn-secondary btn-sm" id="sign-out-btn">Sign out</button>
+    </div>`;
+  document.getElementById("sign-out-btn")
+    .addEventListener("click", () => signOut(auth));
+  document.getElementById("switch-project-btn")
+    .addEventListener("click", () => showProjectPicker(user, userDoc));
 }
 
+// ── Sign-in gate ──────────────────────────────────────────────
+function showSignInGate() {
+  document.getElementById("sign-in-gate")?.remove();
+  document.getElementById("pending-gate")?.remove();
+  const gate = document.createElement("div");
+  gate.id = "sign-in-gate";
+  gate.innerHTML = `
+    <div class="sign-in-bg"></div>
+    <div class="sign-in-card">
+      <h2 class="sign-in-title">#Van Life</h2>
+      <p class="sign-in-p">Plan, Budget, Build</p>
+      <button class="btn-google-large" id="sign-in-btn-gate">
+        ${GOOGLE_SVG} Sign in with Google
+      </button>
+    </div>`;
+  document.body.appendChild(gate);
+  document.getElementById("sign-in-btn-gate")
+    .addEventListener("click", () => signIn().catch(console.error));
+}
+
+// ── Pending approval screen ───────────────────────────────────
+function showPendingGate(user) {
+  document.getElementById("sign-in-gate")?.remove();
+  document.getElementById("pending-gate")?.remove();
+  const gate = document.createElement("div");
+  gate.id = "pending-gate";
+  gate.innerHTML = `
+    <div class="sign-in-bg"></div>
+    <div class="sign-in-card">
+      <div class="pending-icon">⏳</div>
+      <h2 class="sign-in-title">Request Pending</h2>
+      <p class="pending-msg">
+        Thanks ${user.displayName?.split(" ")[0] || ""}! Your account request
+        has been submitted. You'll have access once an admin approves it.
+      </p>
+      <button class="btn-secondary btn-sm" id="pending-sign-out">Sign out</button>
+    </div>`;
+  document.body.appendChild(gate);
+  document.getElementById("pending-sign-out")
+    .addEventListener("click", () => signOut(auth));
+}
+
+// ── Load app for an approved user + project ───────────────────
+export function loadApp(user, userDoc, project) {
+  document.getElementById("sign-in-gate")?.remove();
+  document.getElementById("pending-gate")?.remove();
+  renderAuthBar(user, userDoc);
+
+  // Update project name in header brand
+  const brandName = document.querySelector(".page-brand-name");
+  if (brandName) brandName.textContent = project.name || "Van Build Planner";
+
+  setCurrentProject(project.id);
+  startListening();
+  appEl.style.display = "";
+  setTimeout(openDashboard, 800);
+}
+
+// ── Main auth listener ────────────────────────────────────────
 export function initAuth() {
-  onAuthStateChanged(auth, user => {
+  onAuthStateChanged(auth, async user => {
     setCurrentUser(user);
-    renderAuthBar(user);
-    if (user) {
-      startListening();
-      appEl.style.display = "";
-      // Slight delay so Firestore data loads before dashboard renders
-      setTimeout(openDashboard, 800);
-    } else {
+
+    if (!user) {
       stopListening();
       updateState({ categories: [] });
       appEl.style.display = "none";
-      appEl.innerHTML = "";
+      authEl.innerHTML = "";
+      showSignInGate();
+      return;
     }
+
+    // Ensure user doc exists, get status
+    const userDoc = await ensureUserDoc(user);
+
+    if (userDoc.status !== "approved") {
+      appEl.style.display = "none";
+      showPendingGate(user);
+      return;
+    }
+
+    // Approved — show project picker
+    showProjectPicker(user, userDoc);
   });
 }
