@@ -301,11 +301,13 @@ function createOverlay(id) {
   return el;
 }
 
-function removeOverlay() {
+export function removeAllOverlays() {
   document.querySelectorAll(
-    "#project-picker, #new-project-overlay, #admin-panel-overlay"
+    "#project-picker, #new-project-overlay, #admin-panel-overlay, #invite-overlay"
   ).forEach(el => el.remove());
 }
+
+function removeOverlay() { removeAllOverlays(); }
 
 function showError(el, msg) {
   el.textContent    = msg;

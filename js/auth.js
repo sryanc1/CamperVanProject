@@ -6,7 +6,7 @@ import { ensureUserDoc }                             from "./users.js";
 import { openDashboard }                             from "./render.js";
 import { updateState }                               from "./state.js";
 import { setCurrentUser, startListening, stopListening, setCurrentProject } from "./sync.js";
-import { showProjectPicker }                         from "./projects.js";
+import { showProjectPicker, removeAllOverlays }      from "./projects.js";
 import { getInviteTokenFromURL, acceptInvite, clearInviteFromURL } from "./invites.js";
 
 const authEl = document.getElementById("auth-bar");
@@ -85,6 +85,7 @@ function showPendingGate(user) {
 export function loadApp(user, userDoc, project) {
   document.getElementById("sign-in-gate")?.remove();
   document.getElementById("pending-gate")?.remove();
+  removeAllOverlays();
   renderAuthBar(user, userDoc);
 
   // Update project name in header brand
