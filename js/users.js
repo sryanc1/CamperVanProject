@@ -5,6 +5,7 @@ import {
   db, getDoc, setDoc, updateDoc,
   userDocRef, projectsCol, query, where, getDocs,
 } from "../firebase.js";
+import { arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // Create a user doc on first login (status: pending)
 export async function ensureUserDoc(user) {
@@ -40,6 +41,13 @@ export async function getPendingUsers() {
   return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
 }
 
+// Add a project ID to a user's project list
+export async function addProjectToUser(uid, projectId) {
+  await updateDoc(userDocRef(uid), {
+    projects: arrayUnion(projectId),
+  });
+}
+
 // Admin: approve a user
 export async function approveUser(uid) {
   await updateDoc(userDocRef(uid), { status: "approved" });
@@ -52,11 +60,22 @@ export async function rejectUser(uid) {
 }
 
 // Fetch projects the current user is a member of
+// Reads project IDs stored on user doc, then fetches each individually
 export async function getUserProjects(uid) {
-  const col  = projectsCol();
-  const snap = await getDocs(col);
-  // Filter client-side — Firestore can't query map keys directly
-  return snap.docs
-    .filter(d => d.data().members?.[uid])
-    .map(d => ({ id: d.id, ...d.data() }));
+  try {
+    const userSnap = await getDoc(userDocRef(uid));
+    const projectIds = userSnap.data()?.projects || [];
+    if (projectIds.length === 0) return [];
+
+    const { projectRef } = await import("../firebase.js");
+    const results = await Promise.all(
+      projectIds.map(id => getDoc(projectRef(id)))
+    );
+    return results
+      .filter(snap => snap.exists())
+      .map(snap => ({ id: snap.id, ...snap.data() }));
+  } catch (err) {
+    console.error("getUserProjects failed:", err);
+    return [];
+  }
 }

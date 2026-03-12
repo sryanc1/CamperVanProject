@@ -6,7 +6,7 @@ import {
   projectRef, projectsCol, buildDocRef, userDocRef,
   query, where, getDocs, collection,
 } from "../firebase.js";
-import { getUserProjects, getPendingUsers, approveUser, rejectUser } from "./users.js";
+import { getUserProjects, getPendingUsers, approveUser, rejectUser, addProjectToUser } from "./users.js";
 import { loadApp } from "./auth.js";
 
 let _currentUser    = null;
@@ -44,8 +44,14 @@ export async function showProjectPicker(user, userDoc) {
   }
 
   // Load projects
-  const projects = await getUserProjects(user.uid);
-  const listEl   = document.getElementById("picker-list");
+  let projects = [];
+  try {
+    projects = await getUserProjects(user.uid);
+  } catch (err) {
+    console.error("Failed to load projects:", err);
+  }
+  const listEl = document.getElementById("picker-list");
+  if (!listEl) return;
 
   if (projects.length === 0) {
     listEl.innerHTML = `<p class="picker-empty">No projects yet — create one below.</p>`;
@@ -114,8 +120,11 @@ function showNewProjectForm(user, userDoc) {
           name, ownerId: user.uid, members,
           createdAt: serverTimestamp(),
         });
-        // Create empty build doc
-        await setDoc(buildDocRef(docRef.id), { categories: [], budget: 0 });
+        // Store project ID on user doc and create empty build doc
+        await Promise.all([
+          addProjectToUser(user.uid, docRef.id),
+          setDoc(buildDocRef(docRef.id), { categories: [], budget: 0 }),
+        ]);
         removeOverlay();
         loadApp(user, userDoc, { id: docRef.id, name, members });
       } catch (err) {
