@@ -2,10 +2,9 @@
 // User document management — create, read, status checks.
 
 import {
-  db, getDoc, setDoc, updateDoc,
+  db, getDoc, setDoc, updateDoc, arrayUnion,
   userDocRef, projectsCol, query, where, getDocs,
 } from "../firebase.js";
-import { arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // Create a user doc on first login (status: pending)
 export async function ensureUserDoc(user) {
@@ -43,9 +42,11 @@ export async function getPendingUsers() {
 
 // Add a project ID to a user's project list
 export async function addProjectToUser(uid, projectId) {
+  console.log("[addProjectToUser] writing", projectId, "to user", uid);
   await updateDoc(userDocRef(uid), {
     projects: arrayUnion(projectId),
   });
+  console.log("[addProjectToUser] done");
 }
 
 // Admin: approve a user
@@ -65,6 +66,7 @@ export async function getUserProjects(uid) {
   try {
     const userSnap = await getDoc(userDocRef(uid));
     const projectIds = userSnap.data()?.projects || [];
+    console.log("[getUserProjects] uid:", uid, "projectIds:", projectIds);
     if (projectIds.length === 0) return [];
 
     const { projectRef } = await import("../firebase.js");
