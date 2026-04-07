@@ -1,5 +1,5 @@
 // ── users.js ─────────────────────────────────────────────────
-// User document management — create, read, status checks.
+// User document management - create, read, status checks.
 
 import {
   db, getDoc, setDoc, updateDoc, deleteDoc, collection,

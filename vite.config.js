@@ -37,7 +37,7 @@ export default defineConfig({
       manifest: {
         name: '#Van Life',
         short_name: '#Van Life',
-        description: 'Plan and track your van build — budget, items, and floor plan.',
+        description: 'Plan and track your van build - budget, items, and floor plan.',
         theme_color: '#E8A020',
         background_color: '#1A1A1A',
         display: 'standalone',

@@ -7,7 +7,7 @@ import { scheduleWrite }    from "./sync.js";
 import { render }           from "./render.js";
 import { showModal, showConfirm, closeModal } from "./modal.js";
 
-// Central setState — update → render → persist
+// Central setState - update → render → persist
 export function setState(newState) {
   updateState(newState);
   render();
@@ -160,7 +160,7 @@ export async function removeOption(categoryId, itemId, optionId) {
 export function selectOption(categoryId, itemId, optionId) {
   const state   = getState();
   const item    = state.categories.flatMap(c => c.items).find(i => i.id === itemId);
-  // If already selected — deselect; otherwise select
+  // If already selected - deselect; otherwise select
   const newSelection = item?.selectedOptionId === optionId ? null : optionId;
   setState({
     ...state,
@@ -188,7 +188,7 @@ export async function togglePurchased(categoryId, itemId, optionId) {
     .find(o => o.id === optionId);
   if (!option) return;
 
-  // Unchecking — clear actual cost, no prompt needed
+  // Unchecking - clear actual cost, no prompt needed
   if (option.purchased) {
     setState({
       ...state,
@@ -207,12 +207,12 @@ export async function togglePurchased(categoryId, itemId, optionId) {
     return;
   }
 
-  // Checking — prompt for actual price, pre-filled with estimated cost
+  // Checking - prompt for actual price, pre-filled with estimated cost
   const result = await showModal([
     { name: "actualCost", label: "Actual price paid ($)", type: "number",
       default: option.cost * (option.quantity || 1), placeholder: "0.00" },
   ], "Mark as Purchased");
-  if (!result) return;   // cancelled — leave checkbox unticked
+  if (!result) return;   // cancelled - leave checkbox unticked
 
   setState({
     ...state,

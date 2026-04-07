@@ -333,7 +333,7 @@ body {
   );
 }
 
-/* card-hero-title is now a sticky bar — see .card-sticky-title below */
+/* card-hero-title is now a sticky bar - see .card-sticky-title below */
 .card-hero-title { display: none; }
 
 .card-hero-actions {
@@ -344,7 +344,7 @@ body {
   gap: 6px;
 }
 
-/* Card body — card itself scrolls */
+/* Card body - card itself scrolls */
 .card-body {
   padding: 12px 14px 8px;
   display: flex;
@@ -721,7 +721,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 /* sign-in-note removed */
 
 /* ============================================================
-   ITEM — QUANTITY & NOTES
+   ITEM - QUANTITY & NOTES
    ============================================================ */
 .item-title-row {
   display: flex;
@@ -822,10 +822,10 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 .preview-card:hover .preview-arrow { opacity: 1; }
 
 /* ============================================================
-   OPTION — ROW LAYOUT (with qty/notes/preview below)
+   OPTION - ROW LAYOUT (with qty/notes/preview below)
    ============================================================ */
 .option {
-  /* override previous flat flex — now a column */
+  /* override previous flat flex - now a column */
   display: block;
   padding: 7px 8px;
   margin: 4px 0;
@@ -934,7 +934,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   color: var(--amber);
 }
 
-/* Drawer overlays shell via z-index — no shell shifting needed */
+/* Drawer overlays shell via z-index - no shell shifting needed */
 
 /* ============================================================
    COLLAPSIBLE ITEMS
@@ -956,12 +956,12 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   display: inline-block;
 }
 
-/* Expanded state — chevron points down */
+/* Expanded state - chevron points down */
 .item:not(.item-collapsed) .item-chevron {
   transform: rotate(90deg);
 }
 
-/* Item body — hidden when collapsed */
+/* Item body - hidden when collapsed */
 .item-body {
   overflow: hidden;
   max-height: 600px;       /* large enough for any realistic option list */
@@ -994,7 +994,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   border-color: var(--border);
 }
 
-/* Paid badge — green tint to distinguish actual from estimated */
+/* Paid badge - green tint to distinguish actual from estimated */
 .item-cost-paid {
   color: var(--green);
   background: rgba(74, 222, 128, 0.1);
@@ -1015,7 +1015,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   font-variant-numeric: tabular-nums;
 }
 
-/* Card hero total — sits beside the sticky title */
+/* Card hero total - sits beside the sticky title */
 .card-sticky-title-text {
   display: flex;
   align-items: baseline;
@@ -1038,7 +1038,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
    GRAND TOTAL
    ============================================================ */
 
-/* Header total — sits between brand and floor plan button */
+/* Header total - sits between brand and floor plan button */
 .header-total {
   display: flex;
   align-items: baseline;
@@ -1065,7 +1065,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   font-variant-numeric: tabular-nums;
 }
 
-/* Sidebar footer total — above add button */
+/* Sidebar footer total - above add button */
 
 
 /* Ensure floor plan button doesn't also grab the auto margin
@@ -1075,7 +1075,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 
 /* ============================================================
-   PAGE HEADER — MOBILE
+   PAGE HEADER - MOBILE
    ============================================================ */
 @media (max-width: 768px) {
 
@@ -1086,7 +1086,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   .btn-floorplan .btn-floorplan-label { display: none; }
   .btn-floorplan { padding: 7px 10px; }
 
-  /* Hide header total — visible in sidebar instead */
+  /* Hide header total - visible in sidebar instead */
   .header-total { display: none !important; }
 
   /* Tighten header gap */
@@ -1242,7 +1242,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   color: var(--green);
 }
 
-/* Purchased option — subtle strikethrough on name */
+/* Purchased option - subtle strikethrough on name */
 .option-purchased .option-name {
   text-decoration: line-through;
   opacity: 0.5;
@@ -1257,7 +1257,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   gap: 4px;
 }
 
-/* Option lines — all share same base layout */
+/* Option lines - all share same base layout */
 .option-line-1,
 .option-line-2a,
 .option-line-2b {
@@ -1330,7 +1330,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 .btn-link:hover { opacity: 0.8; }
 
 /* ============================================================
-   MOBILE — STICKY TITLE AT TOP OF CARD BY DEFAULT
+   MOBILE - STICKY TITLE AT TOP OF CARD BY DEFAULT
    ============================================================ */
 @media (max-width: 768px) {
   .card-sticky-title,
@@ -1346,11 +1346,11 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
    SPENT + REMAINING HEADER PILLS
    ============================================================ */
 
-/* Spent — neutral green by default, inherits warn/over from data-status */
+/* Spent - neutral green by default, inherits warn/over from data-status */
 .header-spent .header-total-label  { color: var(--text-3); }
 .header-spent .header-total-amount { color: var(--green);  }
 
-/* Remaining — blue-ish neutral, warn/over via data-status */
+/* Remaining - blue-ish neutral, warn/over via data-status */
 .header-remaining .header-total-label  { color: var(--text-3); }
 .header-remaining .header-total-amount { color: var(--text-2); }
 
@@ -1361,7 +1361,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 .header-spent[data-status="over"] .header-total-amount,
 .header-remaining[data-status="over"] .header-total-amount { color: var(--red); }
 
-/* Actual cost badge — sits in line 2 after estimated price */
+/* Actual cost badge - sits in line 2 after estimated price */
 .actual-cost-badge {
   font-weight: 600;
   color: var(--green);
@@ -1372,7 +1372,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   font-variant-numeric: tabular-nums;
 }
 
-/* Hide spent/remaining on mobile — sidebar has the summary */
+/* Hide spent/remaining on mobile - sidebar has the summary */
 @media (max-width: 768px) {
   .header-spent,
   .header-remaining { display: none !important; }
@@ -1447,7 +1447,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   .budget-stat { padding: 8px 10px; }
 }
 
-/* Budget — blue, target/cap */
+/* Budget - blue, target/cap */
 #bd-budget {
   border-left-color: #60a5fa;
   background: rgba(96, 165, 250, 0.05);
@@ -1455,7 +1455,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 #bd-budget .budget-stat-label::before { content: "🎯"; }
 #bd-budget .budget-stat-amount        { color: #60a5fa; }
 
-/* Estimated — amber, planned spend */
+/* Estimated - amber, planned spend */
 #bd-estimated {
   border-left-color: var(--amber);
   background: rgba(245, 158, 11, 0.05);
@@ -1463,7 +1463,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 #bd-estimated .budget-stat-label::before { content: "📋"; }
 #bd-estimated .budget-stat-amount        { color: var(--amber); }
 
-/* Spent — green, money out */
+/* Spent - green, money out */
 #bd-spent {
   border-left-color: var(--green);
   background: rgba(74, 222, 128, 0.05);
@@ -1471,7 +1471,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 #bd-spent .budget-stat-label::before { content: "💳"; }
 #bd-spent .budget-stat-amount        { color: var(--green); }
 
-/* Remaining — dynamic: green → amber → red */
+/* Remaining - dynamic: green → amber → red */
 #bd-remaining {
   border-left-color: var(--green);
   background: rgba(74, 222, 128, 0.05);
@@ -1495,7 +1495,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 #bd-spent[data-status="warn"] .budget-stat-amount { color: var(--amber); }
 #bd-spent[data-status="over"] .budget-stat-amount { color: var(--red);   }
 
-/* Variance — green = under, red = over, neutral = no data */
+/* Variance - green = under, red = over, neutral = no data */
 #bd-variance {
   border-left-color: var(--text-3);
   background: var(--surface-2);
@@ -1569,7 +1569,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   font-variant-numeric: tabular-nums;
 }
 
-/* Remove old header spent/remaining rules — no longer in header */
+/* Remove old header spent/remaining rules - no longer in header */
 .header-spent,
 .header-remaining { display: none !important; }
 
@@ -1593,7 +1593,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   color: var(--green);
 }
 
-/* Purchased cost badge on item header — green to signal actual spend */
+/* Purchased cost badge on item header - green to signal actual spend */
 .item-cost-badge.item-cost-purchased {
   color: var(--green);
   background: rgba(74, 222, 128, 0.1);

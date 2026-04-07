@@ -71,7 +71,7 @@ function renderTotals() {
     budgetInput.value = budget;
   }
 
-  // Header — estimated pill + budget input only
+  // Header - estimated pill + budget input only
   const headerEl = document.getElementById("header-total");
   if (headerEl) {
     headerEl.style.display = total > 0 ? "flex" : "none";
@@ -79,7 +79,7 @@ function renderTotals() {
   }
 
 
-  // Budget drawer stats — IDs are on the card divs, amounts on the child span
+  // Budget drawer stats - IDs are on the card divs, amounts on the child span
   const set = (id, val) => {
     const el = document.getElementById(id);
     const amountEl = el?.querySelector(".budget-stat-amount");
@@ -95,10 +95,10 @@ function renderTotals() {
   set("bd-budget",    budget > 0 ? `$${budget.toFixed(2)}` : "Not set");
   set("bd-estimated", `$${total.toFixed(2)}`);
   set("bd-spent",     `$${spent.toFixed(2)}`);
-  set("bd-remaining", remaining !== null ? `$${remaining.toFixed(2)}` : "—");
+  set("bd-remaining", remaining !== null ? `$${remaining.toFixed(2)}` : "-");
   set("bd-variance",  hasVariance
     ? `${variance > 0 ? "+" : ""}$${variance.toFixed(2)}`
-    : "—");
+    : "-");
 
   setStatus("bd-spent",     spentStatus);
   setStatus("bd-remaining", remaining !== null
@@ -116,7 +116,7 @@ function renderTotals() {
   setBar("bd-bar-estimated", pctEstimated, pctEstimated > 1 ? "over" : pctEstimated > 0.8 ? "warn" : "ok");
   setBar("bd-bar-spent",     pctSpent,     spentStatus);
 
-  const pctFmt = pct => budget > 0 ? `${(pct * 100).toFixed(0)}%` : "—";
+  const pctFmt = pct => budget > 0 ? `${(pct * 100).toFixed(0)}%` : "-";
   set("bd-pct-estimated", pctFmt(pctEstimated));
   set("bd-pct-spent",     pctFmt(pctSpent));
 }
@@ -189,7 +189,7 @@ function renderCard(category) {
   return `
     <div class="card" data-category="${category.id}">
 
-      <!-- Hero image — scrolls away -->
+      <!-- Hero image - scrolls away -->
       <div class="card-hero">
         <img class="card-hero-img" src="${imgSrc}" alt="${category.name}"
           onerror="this.style.display='none'" onload="this.classList.add('loaded')" />
@@ -199,7 +199,7 @@ function renderCard(category) {
         </div>
       </div>
 
-      <!-- Sticky title bar — pins to top when hero scrolls out of view -->
+      <!-- Sticky title bar - pins to top when hero scrolls out of view -->
       <div class="card-sticky-title">
         <div class="card-sticky-title-text">
           <span>${category.icon || ""} ${category.name}</span>
@@ -222,7 +222,7 @@ function renderCard(category) {
         >${category.notes || ""}</textarea>
         <div class="cat-notes-footer">
           <span class="cat-notes-conflict" style="display:none">
-            ⚠ Updated remotely —
+            ⚠ Updated remotely -
             <button class="btn-link" data-action="notes-discard" data-category="${category.id}">discard my changes</button>
           </span>
           <span class="cat-notes-saved" style="display:none">Saved ✓</span>
@@ -266,7 +266,7 @@ function renderItem(category, item) {
   const isPaid = selectedOpt?.purchased && selectedOpt?.actualCost != null;
   const costBadge = displayCost !== null
     ? `<span class="item-cost-badge ${isPaid ? "item-cost-paid" : ""}">$${displayCost.toFixed(2)}</span>`
-    : (item.options.length > 0 ? `<span class="item-cost-badge item-cost-unset">—</span>` : "");
+    : (item.options.length > 0 ? `<span class="item-cost-badge item-cost-unset">-</span>` : "");
 
   const isPurchased = item.options.some(o => o.purchased);
 
@@ -455,7 +455,7 @@ function renderDashboard() {
 
       const optionCell = selected
         ? `<span class="db-selected-tick">✓</span>`
-        : `<span class="db-no-selection">—</span>`;
+        : `<span class="db-no-selection">-</span>`;
 
       const purchasedCell = selected
         ? (purchased
@@ -498,7 +498,7 @@ export function checkNotesConflicts(updatedCategories) {
       panel.querySelector(".cat-notes-conflict").style.display = "inline";
       panel.querySelector(".cat-notes-saved").style.display    = "none";
     } else if (remoteChanged && !localDirty) {
-      // No local edits — silently update the textarea and saved marker
+      // No local edits - silently update the textarea and saved marker
       if (textarea) textarea.value = cat.notes || "";
       panel.dataset.savedNotes = cat.notes || "";
     }
@@ -513,7 +513,7 @@ function setupCardObserver() {
   const visibleCards = new Set();
 
   cardObserver = new IntersectionObserver(entries => {
-    // Update the visible set — entries only contains cards that changed state
+    // Update the visible set - entries only contains cards that changed state
     entries.forEach(e => {
       if (e.isIntersecting) visibleCards.add(e.target);
       else                  visibleCards.delete(e.target);

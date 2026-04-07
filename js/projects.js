@@ -55,7 +55,7 @@ export async function showProjectPicker(user, userDoc) {
   if (!listEl) return;
 
   if (projects.length === 0) {
-    listEl.innerHTML = `<p class="picker-empty">No projects yet — create one below.</p>`;
+    listEl.innerHTML = `<p class="picker-empty">No projects yet - create one below.</p>`;
     return;
   }
 

@@ -19,7 +19,7 @@ initSync(render);           // tell sync.js how to trigger a re-render
 initModalListeners();       // wire modal overlay click/submit handlers
 initAuth();                 // start Firebase auth listener
 
-// Budget input — debounced so it doesn't write on every keystroke
+// Budget input - debounced so it doesn't write on every keystroke
 const budgetInput = document.getElementById("budget-input");
 let budgetTimer = null;
 budgetInput.addEventListener("input", () => {
@@ -107,7 +107,7 @@ appEl.addEventListener("click", e => {
   if (action === "select-option") {
     // Radio buttons don't fire when re-clicking an already-checked input.
     // We intercept the click before the browser sets checked, so e.target.checked
-    // still reflects the *previous* state — if it was already checked, deselect.
+    // still reflects the *previous* state - if it was already checked, deselect.
     e.preventDefault();
     selectOption(category, item, option);
   }

@@ -108,7 +108,7 @@ async function showInviteAcceptScreen(user, userDoc, token) {
   document.getElementById("pending-gate")?.remove();
 
   const gate = document.createElement("div");
-  gate.id = "invite-gate";
+  gate.id = "sign-in-gate";
   gate.innerHTML = `
     <div class="sign-in-bg"></div>
     <div class="sign-in-card">
@@ -175,7 +175,7 @@ export function initAuth() {
       return;
     }
 
-    // Approved — show project picker
+    // Approved - show project picker
     showProjectPicker(user, userDoc);
   });
 }
