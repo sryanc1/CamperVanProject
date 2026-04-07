@@ -52,9 +52,10 @@ body {
   background: rgba(17,16,9,0.92);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-soft);
+  justify-content: end;
 }
 
-.auth-user { display: flex; align-items: center; gap: 10px; justify-content: end;}
+.auth-user { display: flex; align-items: center; gap: 10px;}
 
 .auth-avatar {
   width: 28px; height: 28px;
