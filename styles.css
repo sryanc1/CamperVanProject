@@ -46,7 +46,7 @@ body {
   height: var(--topbar-h);
   z-index: 100;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding: 0 20px;
   background: rgba(17,16,9,0.92);
@@ -54,7 +54,7 @@ body {
   border-bottom: 1px solid var(--border-soft);
 }
 
-.auth-user { display: flex; align-items: center; gap: 10px; }
+.auth-user { display: flex; align-items: center; gap: 10px; justify-content: end;}
 
 .auth-avatar {
   width: 28px; height: 28px;
@@ -69,7 +69,7 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-3);
-  min-width: 60px;
+  min-width: 100px;
   text-align: right;
   transition: color 0.3s;
 }
@@ -1093,6 +1093,10 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 
   /* Hide the auther name */
   .auth-name { display: none; }
+
+  .auth-user { justify-content: space-around;}
+
+  .sync-status { min-width: 100px; }
 }
 
 /* ============================================================
