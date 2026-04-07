@@ -183,7 +183,7 @@ function renderCarousel() {
 
 // ── Card ─────────────────────────────────────────────────────
 function renderCard(category) {
-  const imgSrc = `${import.meta.env.BASE_URL}images/${categorySlug(category.name)}.jpg`;
+  const imgSrc = `images/${categorySlug(category.name)}.jpg`;
   const total  = categoryTotal(category);
   const totalHTML = total > 0 ? `<span class="card-hero-total">$${total.toFixed(2)}</span>` : "";
   return `
