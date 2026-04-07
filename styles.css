@@ -1076,7 +1076,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 /* ============================================================
    PAGE HEADER — MOBILE
    ============================================================ */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
 
   /* Hide brand text, keep icon */
   .page-brand-name { display: none; }
@@ -1090,6 +1090,9 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 
   /* Tighten header gap */
   .page-header { gap: 8px; padding: 0 12px; }
+
+  /* Hide the auther name */
+  .auth-name { display: none; }
 }
 
 /* ============================================================
@@ -1146,7 +1149,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 .header-total[data-status="over"] .header-total-amount { color: var(--red); }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .header-budget-label { display: none; }  /* just hide label, keep $ + input */
   .header-budget-input { width: 60px; }
 }
@@ -1365,7 +1368,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
 }
 
 /* Hide spent/remaining on mobile — sidebar has the summary */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .header-spent,
   .header-remaining { display: none !important; }
 }
@@ -1390,7 +1393,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   gap: 10px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .budget-stat-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -1434,7 +1437,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .budget-stat-amount { font-size: 15px; }
   .budget-stat { padding: 8px 10px; }
 }
@@ -1521,7 +1524,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   gap: 12px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .budget-bar-row { grid-template-columns: 100px 1fr 36px; }
 }
 
@@ -1779,7 +1782,7 @@ button { font-family: var(--font-body); cursor: pointer; transition: all 0.15s; 
   font-style: italic;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .dashboard-header { padding: 14px 16px 12px; }
   .dashboard-stats  { padding: 10px 16px; }
   .dashboard-table-wrap { padding: 0 12px; }
