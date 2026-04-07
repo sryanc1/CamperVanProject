@@ -183,7 +183,7 @@ function renderCarousel() {
 
 // ── Card ─────────────────────────────────────────────────────
 function renderCard(category) {
-  const imgSrc = `images/${categorySlug(category.name)}.jpg`;
+  const imgSrc = `${import.meta.env.BASE_URL}images/${categorySlug(category.name)}.jpg`;
   const total  = categoryTotal(category);
   const totalHTML = total > 0 ? `<span class="card-hero-total">$${total.toFixed(2)}</span>` : "";
   return `
@@ -411,14 +411,32 @@ export function closeDashboard() {
   modal.setAttribute("aria-hidden", "true");
 }
 
-export function renderDashboardPublic() { renderDashboard(); }
-
 function renderDashboard() {
   const { categories } = getState();
   const tbody   = document.getElementById("dashboard-tbody");
+  const statsEl = document.getElementById("dashboard-stats");
   const emptyEl = document.getElementById("dashboard-empty");
   const tableEl = document.getElementById("dashboard-table");
   if (!tbody) return;
+
+  // Summary stats
+  const totalItems    = categories.reduce((s, c) => s + c.items.length, 0);
+  const totalOptions  = categories.reduce((s, c) => s + c.items.reduce((si, i) => si + i.options.length, 0), 0);
+  const totalSelected = categories.reduce((s, c) => s + c.items.filter(i => i.selectedOptionId).length, 0);
+  const totalPurchased = categories.reduce((s, c) =>
+    s + c.items.reduce((si, i) => si + i.options.filter(o => o.purchased).length, 0), 0);
+  const totalGaps = totalItems - totalSelected;
+
+  statsEl.innerHTML = `
+    <div class="db-stat"><span class="db-stat-num">${categories.length}</span><span class="db-stat-label">Categories</span></div>
+    <div class="db-stat"><span class="db-stat-num">${totalItems}</span><span class="db-stat-label">Items</span></div>
+    <div class="db-stat"><span class="db-stat-num">${totalOptions}</span><span class="db-stat-label">Options</span></div>
+    <div class="db-stat"><span class="db-stat-num">${totalSelected}</span><span class="db-stat-label">Selected</span></div>
+    <div class="db-stat"><span class="db-stat-num">${totalPurchased}</span><span class="db-stat-label">Purchased</span></div>
+    <div class="db-stat ${totalGaps > 0 ? "db-stat-warn" : "db-stat-good"}">
+      <span class="db-stat-num">${totalGaps}</span>
+      <span class="db-stat-label">${totalGaps === 1 ? "Gap" : "Gaps"}</span>
+    </div>`;
 
   if (categories.length === 0) {
     tableEl.style.display = "none";
@@ -432,11 +450,8 @@ function renderDashboard() {
     if (cat.items.length === 0) {
       return `
         <tr class="db-row-category">
-          <td class="db-cat-cell" colspan="1">
+          <td class="db-cat-cell" colspan="4">
             ${cat.name}
-            
-          </td>
-          <td colspan="3">
             <span class="db-no-items">no items</span>
           </td>
         </tr>`;
