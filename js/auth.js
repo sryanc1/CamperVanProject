@@ -30,7 +30,7 @@ function renderAuthBar(user, userDoc) {
       <span class="auth-name">${user.displayName}</span>
       ${adminBadge}
       <span id="sync-status" class="sync-status">Live</span>
-      <button class="btn-secondary btn-sm" id="switch-project-btn">Projects</button>
+      <button class="btn-secondary btn-sm" id="switch-project-btn">⇄ Projects</button>
       <button class="btn-secondary btn-sm" id="sign-out-btn">Sign out</button>
     </div>`;
   document.getElementById("sign-out-btn")
@@ -52,8 +52,7 @@ function showSignInGate() {
   gate.innerHTML = `
     <div class="sign-in-bg"></div>
     <div class="sign-in-card">
-      <h2 class="sign-in-title">#Van Life</h2>
-      <p class="sign-in-p">Plan, Budget, Build</p>
+      <h2 class="sign-in-title">Van Build Planner</h2>
       <button class="btn-google-large" id="sign-in-btn-gate">
         ${GOOGLE_SVG} Sign in with Google
       </button>
@@ -108,7 +107,7 @@ async function showInviteAcceptScreen(user, userDoc, token) {
   document.getElementById("pending-gate")?.remove();
 
   const gate = document.createElement("div");
-  gate.id = "pending-gate";
+  gate.id = "invite-gate";
   gate.innerHTML = `
     <div class="sign-in-bg"></div>
     <div class="sign-in-card">
@@ -162,16 +161,17 @@ export function initAuth() {
     // Ensure user doc exists, get status
     const userDoc = await ensureUserDoc(user);
 
-    if (userDoc.status !== "approved") {
-      appEl.style.display = "none";
-      showPendingGate(user);
-      return;
-    }
-
-    // Check for invite token in URL first
+    // Check for invite token BEFORE status check - invited users
+    // start as pending and get approved during acceptInvite()
     const inviteToken = getInviteTokenFromURL();
     if (inviteToken) {
       showInviteAcceptScreen(user, userDoc, inviteToken);
+      return;
+    }
+
+    if (userDoc.status !== "approved") {
+      appEl.style.display = "none";
+      showPendingGate(user);
       return;
     }
 
