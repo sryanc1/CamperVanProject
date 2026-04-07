@@ -65,7 +65,11 @@ export async function acceptInvite(token, user) {
   });
 
   // Auto-approve the user - a valid invite is sufficient vetting
-  await updateDoc(userDocRef(user.uid), { status: "approved" });
+  await updateDoc(userDocRef(user.uid), {
+    status: "approved",
+    invitedBy: invite.inviterName,
+    invitedAt: Date.now(),
+  });
 
   // Add project to user's project list
   await addProjectToUser(user.uid, invite.projectId);
