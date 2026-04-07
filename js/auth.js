@@ -30,7 +30,7 @@ function renderAuthBar(user, userDoc) {
       <span class="auth-name">${user.displayName}</span>
       ${adminBadge}
       <span id="sync-status" class="sync-status">Live</span>
-      <button class="btn-secondary btn-sm" id="switch-project-btn">⇄ Projects</button>
+      <button class="btn-secondary btn-sm" id="switch-project-btn">Projects</button>
       <button class="btn-secondary btn-sm" id="sign-out-btn">Sign out</button>
     </div>`;
   document.getElementById("sign-out-btn")

@@ -69,7 +69,7 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-3);
-  min-width: 70px;
+  min-width: 60px;
   text-align: right;
   transition: color 0.3s;
 }
