@@ -108,7 +108,7 @@ async function showInviteAcceptScreen(user, userDoc, token) {
   document.getElementById("pending-gate")?.remove();
 
   const gate = document.createElement("div");
-  gate.id = "sign-in-gate";
+  gate.id = "pending-gate";
   gate.innerHTML = `
     <div class="sign-in-bg"></div>
     <div class="sign-in-card">
