@@ -1,21 +1,23 @@
-import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "firebase/app";
 import {
   getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField,
   collection, addDoc, query, where, getDocs, onSnapshot, serverTimestamp, arrayUnion, arrayRemove
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+} from "firebase/firestore";
 import {
   getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+} from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey:            "AIzaSyA9zF7mTesrlAuNRfm8HvKvnAW72v2j6UE",
-  authDomain:        "van-project-e7472.firebaseapp.com",
-  projectId:         "van-project-e7472",
-  storageBucket:     "van-project-e7472.firebasestorage.app",
-  messagingSenderId: "1062050986674",
-  appId:             "1:1062050986674:web:a9e1c1c04a9f48e5c8e7ab",
-  measurementId:     "G-Q5YNEZXE05"
+  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId:     import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
+
+console.log('API KEY:', import.meta.env.VITE_FIREBASE_API_KEY);
 
 const app      = initializeApp(firebaseConfig);
 const db       = getFirestore(app);
